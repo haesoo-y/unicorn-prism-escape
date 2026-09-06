@@ -1,0 +1,23 @@
+{
+  "name": "unicorn-prism-escape",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm run check && node tools/dev-server.mjs",
+    "check": "tsc --noEmit",
+    "debug": "npm run check && node tools/build-game.mjs --debug",
+    "prod": "npm run check && node tools/build-game.mjs --prod",
+    "zip": "npm run check && node tools/build-zip.mjs",
+    "size": "node tools/size-report.mjs",
+    "build:debug": "npm run debug",
+    "build:prod": "npm run prod",
+    "zip:prod": "npm run zip"
+  },
+  "devDependencies": {
+    "@gfx/zopfli": "^1.0.15",
+    "esbuild": "^0.25.0",
+    "roadroller": "^2.1.0",
+    "terser": "^5.39.0",
+    "typescript": "^5.8.2"
+  }
+}
