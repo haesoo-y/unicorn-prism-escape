@@ -2,11 +2,11 @@ import type {World, Enemy} from '../ecs/world';
 import type {Entity} from '../ecs/entity';
 import type {GameState} from '../state';
 
-export interface CollisionResult {colors: number; playerHit: boolean}
+export interface CollisionResult {colors: number; playerHit: boolean; enemyHit: boolean; gateEntered: boolean}
 
 export class CollisionSystem {
   update(world: World, state: GameState, delta: number): CollisionResult {
-    const result = {colors: 0, playerHit: false};
+    const result = {colors: 0, playerHit: false, enemyHit: false, gateEntered: false};
     if (state.phase !== 'play') return result;
     const player = world.players.values().next().value;
     if (player === undefined) return result;
@@ -16,14 +16,14 @@ export class CollisionSystem {
       const p = world.positions.get(prism), r = world.radii.get(prism)?.value ?? 0;
       if (!p) continue;
       let dx = pp.x - p.x, dy = pp.y - p.y, distance = Math.hypot(dx, dy);
-      if (state.abilities & 1 << 6 && distance < 160 && distance > 0) {p.x += dx / distance * 180 * delta; p.y += dy / distance * 180 * delta; distance = Math.hypot(pp.x - p.x, pp.y - p.y)}
+      if (state.abilities & 1 << 7 && distance < 160 && distance > 0) {p.x += dx / distance * 180 * delta; p.y += dy / distance * 180 * delta; distance = Math.hypot(pp.x - p.x, pp.y - p.y)}
       if (distance <= pr + r) {
         world.consumed.add(prism);
         const color = world.prismColors.get(prism); if (color) result.colors |= 1 << color.index;
-        if (state.abilities & 1 << 8) this.wave(world, pp.x, pp.y);
+        if (state.abilities & 1 << 5) this.wave(world, pp.x, pp.y);
       }
     }
-    if (state.attackRequested && state.abilities & 1 << 2) for (const [entity, enemy] of world.enemies) {
+    if (state.attackRequested && state.abilities & 1 << 3) for (const [entity, enemy] of world.enemies) {
       const p = world.positions.get(entity); if (!p) continue;
       const dx = p.x - pp.x, dy = p.y - pp.y, forward = dx * facing.x + dy * facing.y, side = Math.abs(dx * facing.y - dy * facing.x);
       if (forward > 0 && forward < 115 && side < 56) this.damage(world, entity, enemy, 2);
@@ -42,8 +42,9 @@ export class CollisionSystem {
     if (state.invulnerable <= 0) for (const entity of world.enemies.keys()) {
       if (world.consumed.has(entity)) continue;
       const p = world.positions.get(entity), r = world.radii.get(entity)?.value ?? 0;
-      if (p && Math.hypot(pp.x - p.x, pp.y - p.y) <= pr + r) {result.playerHit = true; break}
+      if (p && Math.hypot(pp.x - p.x, pp.y - p.y) <= pr + r) {result.playerHit = result.enemyHit = true; break}
     }
+    for(const gate of world.gates){const p=world.positions.get(gate),r=world.radii.get(gate)?.value??0;if(p&&Math.hypot(pp.x-p.x,pp.y-p.y)<=pr+r)result.gateEntered=true}
     return result;
   }
   private damage(world: World, entity: Entity, enemy: Enemy, damage: number): void {enemy.health -= damage; if (enemy.health <= 0) world.consumed.add(entity)}

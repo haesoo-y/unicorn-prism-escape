@@ -4,6 +4,7 @@ import {InputState} from './input';
 import {spawnEnemy, spawnPlayer, spawnPrism} from './prefabs';
 import {createGameState, WORLD_HEIGHT, WORLD_WIDTH, type GameState} from './state';
 import {AISystem} from './systems/ai-system';
+import {AudioSystem} from './systems/audio-system';
 import {CleanupSystem} from './systems/cleanup-system';
 import {CollisionSystem} from './systems/collision-system';
 import {InputSystem} from './systems/input-system';
@@ -30,6 +31,7 @@ export class Game {
   private readonly input = new InputState();
   private readonly inputSystem = new InputSystem(this.input);
   private readonly aiSystem = new AISystem();
+  private readonly audioSystem = new AudioSystem();
   private readonly movementSystem = new MovementSystem();
   private readonly collisionSystem = new CollisionSystem();
   private readonly rulesSystem = new RulesSystem();
@@ -57,17 +59,17 @@ export class Game {
     if (DEBUG) globalThis.__setStage = (stage, abilities = 0, safeSeconds = 1) => {
       this.state.stage = Math.max(0, Math.min(STAGES.length - 1, stage));
       this.state.abilities = abilities;
-      this.state.shieldAvailable = !!(abilities & 16);
       this.startStage();
       this.state.invulnerable = safeSeconds;
     };
     this.reset();
   }
 
-  resize(): void {canvas.width = innerWidth; canvas.height = innerHeight}
+  resize(): void {const d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(innerWidth*d);canvas.height=Math.round(innerHeight*d)}
 
   readonly frame = (time: number): void => {
     const delta = this.lastTime === 0 ? 0 : Math.min((time - this.lastTime) / 1000, .05);
+    this.state.audioEvents = 0;
     this.lastTime = time; this.state.elapsed += delta; if (this.state.phase === 'play') this.state.stageElapsed += delta;
     this.inputSystem.update(this.world, this.state);
     if (this.state.restartRequested) {if (this.state.phase === 'complete') this.reset(); else {this.state.restartRequested = false; this.startStage()}}
@@ -75,7 +77,10 @@ export class Game {
     this.aiSystem.update(this.world, this.state, delta);
     this.movementSystem.update(this.world, delta);
     const collision = this.collisionSystem.update(this.world, this.state, delta);
-    this.rulesSystem.update(this.state, collision);
+    this.rulesSystem.update(this.world,this.state, collision);
+    if (collision.enemyHit) this.state.audioEvents |= 2;
+    if (collision.colors) this.state.audioEvents |= 32;
+    this.audioSystem.update(this.state);
     this.renderSystem.draw(this.world, this.state, time);
     this.cleanupSystem.update(this.world);
     if (DEBUG) {
@@ -88,7 +93,7 @@ export class Game {
         elapsed:this.state.elapsed,stageElapsed:this.state.stageElapsed,collected:this.state.collected,total:this.state.total,stage:this.state.stage,
         entities:this.world.entities.size,positions:this.world.positions.size,velocities:this.world.velocities.size,
         players:this.world.players.size,prisms:this.world.prisms.size,enemies:this.world.enemies.size,enemyTypes,projectiles:this.world.projectiles.size,friendlyShots:shots[0]??0,hostileShots:shots[1]??0,
-        abilities:this.state.abilities,selectedAbility:this.state.selectedAbility,shield:this.state.shieldAvailable,nearestEnemy:Number.isFinite(nearestEnemy)?nearestEnemy:-1,nearestEnemySpeed,cameraX:this.renderSystem.cameraX,cameraY:this.renderSystem.cameraY,
+        abilities:this.state.abilities,selectedAbility:this.state.selectedAbility,gates:this.world.gates.size,nearestEnemy:Number.isFinite(nearestEnemy)?nearestEnemy:-1,nearestEnemySpeed,cameraX:this.renderSystem.cameraX,cameraY:this.renderSystem.cameraY,
         viewWidth:this.renderSystem.viewWidth,viewHeight:this.renderSystem.viewHeight,visiblePrisms:this.renderSystem.visiblePrisms,
       };
     }

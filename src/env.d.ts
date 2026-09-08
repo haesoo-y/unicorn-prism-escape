@@ -1,4 +1,5 @@
 declare const DEBUG: boolean;
+declare var __audioState: {contexts:number; notes:number; beats:number; events:number; state:string} | undefined;
 
 declare module '*.png' {const url:string;export default url}
 declare module '*.webp' {const url:string;export default url}
@@ -26,7 +27,7 @@ interface GameDebugState {
   hostileShots: number;
   abilities: number;
   selectedAbility: number;
-  shield: boolean;
+  gates: number;
   nearestEnemy: number;
   nearestEnemySpeed: number;
   cameraX: number;

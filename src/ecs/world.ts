@@ -25,6 +25,7 @@ export class World {
   readonly cooldowns = this.createComponentStore<Cooldown>();
   readonly players = this.createTagStore();
   readonly prisms = this.createTagStore();
+  readonly gates = this.createTagStore();
   readonly consumed = this.createTagStore();
 
   createEntity(): Entity {const entity = entityFrom(this.nextEntityId++); this.entities.add(entity); return entity}
