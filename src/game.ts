@@ -43,6 +43,7 @@ export class Game {
   constructor() {
     this.input.attach();
     canvas.addEventListener('pointerdown', event => {
+      if (this.state.phase === 'title') {this.state.phase = 'start'; return}
       if (this.state.phase === 'play') {
         if (this.renderSystem.attackAt(event.clientX, event.clientY, this.state)) this.input.attack();
         else if (event.pointerType !== 'mouse' && event.clientX < canvas.clientWidth / 2) {
@@ -70,7 +71,7 @@ export class Game {
   readonly frame = (time: number): void => {
     const delta = this.lastTime === 0 ? 0 : Math.min((time - this.lastTime) / 1000, .05);
     this.state.audioEvents = 0;
-    this.lastTime = time; if (this.state.phase === 'play') {this.state.elapsed += delta; this.state.stageElapsed += delta}
+    this.lastTime = time; if (this.state.phase === 'start') {this.state.stageElapsed += delta;if(this.state.stageElapsed>.3){this.state.phase='play';this.state.stageElapsed=0}} else if (this.state.phase === 'play') {this.state.elapsed += delta; this.state.stageElapsed += delta}
     this.inputSystem.update(this.world, this.state);
     if (this.state.restartRequested) {if (this.state.phase === 'complete') this.reset(); else {this.state.restartRequested = false; this.startStage()}}
     else if (this.state.phase === 'advance') this.nextStage();
@@ -100,7 +101,7 @@ export class Game {
     this.input.endFrame(); requestAnimationFrame(this.frame);
   };
 
-  private reset(): void {this.state = createGameState(7); this.startStage()}
+  private reset(): void {this.state = createGameState(7); this.startStage();this.state.phase='title'}
   private nextStage(): void {this.state.stage++; this.startStage()}
   private startStage(): void {
     this.world.clear(); this.state.phase = 'play'; this.state.stageElapsed = 0; this.state.collected = this.state.rainbowMask = 0; this.state.attackRequested = false; this.state.invulnerable = 1;

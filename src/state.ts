@@ -16,7 +16,7 @@ export const ABILITIES = [
 ] as const;
 export const RAINBOW_COLORS = ['#ff4057', '#ff8b2b', '#ffd23f', '#45d66b', '#3a9cff', '#5552c9', '#ad5cff'] as const;
 
-export type Phase = 'play' | 'upgrade' | 'advance' | 'failed' | 'complete';
+export type Phase = 'title' | 'start' | 'play' | 'upgrade' | 'advance' | 'failed' | 'complete';
 
 export interface GameState {
   phase: Phase;

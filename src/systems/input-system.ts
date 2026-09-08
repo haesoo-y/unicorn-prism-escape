@@ -7,6 +7,7 @@ export class InputSystem {
 
   update(world: World, state: GameState): void {
     state.attackRequested = false;
+    if (state.phase === 'title') {if (this.input.take('Space') || this.input.take('Enter')) state.phase = 'start'; return}
     if (this.input.take('KeyR')) state.restartRequested = true;
     for (const player of world.players) {
       const velocity = world.velocities.get(player), facing = world.facings.get(player);

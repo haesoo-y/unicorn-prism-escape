@@ -24,6 +24,7 @@ export class AudioSystem {
   }
 
   update(state: GameState): void {
+    if (state.phase === 'title') return;
     const audio = this.audio;
     if (!audio || audio.state !== 'running') return;
     const now = audio.currentTime;
