@@ -17,10 +17,13 @@ export class RulesSystem {
       if(state.stage&&p){x=p.x<WORLD_WIDTH/2?WORLD_WIDTH-90:90;y=p.y<WORLD_HEIGHT/2?WORLD_HEIGHT-90:90;for(let tries=0;tries<20;tries++){const gx=90+Math.random()*(WORLD_WIDTH-180),gy=90+Math.random()*(WORLD_HEIGHT-180);if(Math.hypot(gx-p.x,gy-p.y)>600&&[...world.enemies.keys()].every(e=>{const q=world.positions.get(e);return !q||Math.hypot(q.x-gx,q.y-gy)>140})){x=gx;y=gy;break}}}
       spawnGate(world,x,y);
     }
-    if(state.phase==='play'&&Math.floor(state.stageElapsed/5)>state.reinforcementWave){
-      state.reinforcementWave=Math.floor(state.stageElapsed/5);
+    if(state.phase==='play'&&Math.floor(state.stageElapsed/8)>state.reinforcementWave){
+      state.reinforcementWave=Math.floor(state.stageElapsed/8);
       const edges=[0,1,2,3],player=world.players.values().next().value,p=player===undefined?undefined:world.positions.get(player);
-      for(let type=0;type<=Math.floor(state.stage/3)&&type<3;type++){
+      const kinds=Math.min(3,1+Math.floor(state.stage/3)),limit=[4,7,9,15,17,19,24,27,30,35][state.stage]??4;
+      let living=0;for(const enemy of world.enemies.keys())if(!world.consumed.has(enemy))living++;
+      for(let i=0;i<kinds&&living<limit;i++,living++){
+        const type=state.reinforcementType++%kinds;
         const edge=edges.splice(Math.floor(Math.random()*edges.length),1)[0]??0,horizontal=edge%2===0,length=horizontal?WORLD_WIDTH:WORLD_HEIGHT;
         let along=160+Math.random()*(length-320),x=horizontal?along:edge===1?WORLD_WIDTH-48:48,y=horizontal?(edge===0?48:WORLD_HEIGHT-48):along;
         if(p&&Math.hypot(x-p.x,y-p.y)<160){along=along<length/2?length-160:160;if(horizontal)x=along;else y=along}

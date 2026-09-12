@@ -14,16 +14,16 @@ export class AISystem {
     playerCooldown.value -= delta;
     if (state.attackRequested) {state.meleeFlash = .15; state.audioEvents |= 4}
     if (state.abilities & 1 << 4 && playerCooldown.value <= 0) {
-      spawnProjectile(world, playerPosition.x + facing.x * 34, playerPosition.y + facing.y * 34, facing.x * 420, facing.y * 420, true);
+      for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]] as const) spawnProjectile(world, playerPosition.x + x * 34, playerPosition.y + y * 34, x * 420, y * 420, true);
       state.audioEvents |= 8;
-      playerCooldown.value = 1;
+      playerCooldown.value = 2;
     }
     for (const [entity, enemy] of world.enemies) {
       const position = world.positions.get(entity), velocity = world.velocities.get(entity), cooldown = world.cooldowns.get(entity);
       if (!position || !velocity || !cooldown) continue;
       const dx = playerPosition.x - position.x, dy = playerPosition.y - position.y, distance = Math.hypot(dx, dy) || 1;
-      let speed = ([200, 180, 160][enemy.type] ?? 180) + state.stage * 10;
-      if (state.abilities & 1 << 8 && distance < 220) speed *= .35;
+      let speed = ([200, 180, 160][enemy.type] ?? 180) + state.stage * 5;
+      if (state.abilities & 1 << 8 && distance < 200) speed *= .65;
       const rush = enemy.type !== 1 && (state.elapsed + entity * (enemy.type === 0 ? .37 : .61)) % (enemy.type === 0 ? 2.6 : 4.2) < (enemy.type === 0 ? .85 : 1.4);
       const orbit=rush?0:enemy.type===0?18+entity%3*24:enemy.type===1?70+entity%3*18:24+entity%2*38,angle=entity*2.4+state.elapsed*(enemy.type===0 ? .8 : enemy.type===1 ? -.45 : .22),chaseX=playerPosition.x+Math.cos(angle)*orbit-position.x,chaseY=playerPosition.y+Math.sin(angle)*orbit-position.y,chaseDistance=Math.hypot(chaseX,chaseY)||1,nx=chaseX/chaseDistance,ny=chaseY/chaseDistance,curve=rush?0:enemy.type===0?Math.sin(state.elapsed*3+entity*1.7)*.2:enemy.type===1?(entity%2 ? .22 : -.22):Math.sin(state.elapsed*.9+entity*2)*.12;
       let steerX=nx-ny*curve,steerY=ny+nx*curve;const radius=world.radii.get(entity)?.value??10;
@@ -44,7 +44,7 @@ export class AISystem {
         const position = world.positions.get(entity), velocity = world.velocities.get(entity);
         if (position && velocity) {
           const distance = Math.hypot(position.x - playerPosition.x, position.y - playerPosition.y);
-          const length = Math.hypot(velocity.x, velocity.y) || 1, speed = distance < 220 ? 105 : 300;
+          const length = Math.hypot(velocity.x, velocity.y) || 1, speed = distance < 200 ? 105 : 300;
           velocity.x = velocity.x / length * speed; velocity.y = velocity.y / length * speed;
         }
       }
