@@ -8,6 +8,7 @@ export class RulesSystem {
     state.rainbowMask |= collision.colors;
     for (let colors = collision.colors; colors; colors &= colors - 1) state.collected++;
     if (collision.gateEntered && state.phase === 'play') {
+      state.stageTimes[state.stage] = state.elapsed - state.stageTimes.reduce((sum,seconds)=>sum+seconds,0);
       state.phase = state.stage === STAGE_COUNT - 1 ? 'complete' : 'upgrade';
       state.pointerArmed = -1;
       for (let index = 0; index < ABILITIES.length; index++) if (!(state.abilities&1<<index)&&(index%3===0||state.abilities&1<<index-1)) {state.selectedAbility=index;break}
