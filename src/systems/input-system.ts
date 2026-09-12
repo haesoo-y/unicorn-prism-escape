@@ -32,8 +32,12 @@ export class InputSystem {
     const direction = (this.input.take('ArrowLeft') || this.input.take('KeyA')) ? -1 : (this.input.take('ArrowRight') || this.input.take('KeyD')) ? 1 : (this.input.take('ArrowUp') || this.input.take('KeyW')) ? -3 : (this.input.take('ArrowDown') || this.input.take('KeyS')) ? 3 : 0;
     if (direction) {
       state.pointerArmed = -1;
-      for(let tries=0;tries<ABILITIES.length;tries++){const choice=(state.selectedAbility+direction+ABILITIES.length)%ABILITIES.length;state.selectedAbility=choice;if(this.available(state,choice))break}
-      state.audioEvents |= 64;
+      const before=state.selectedAbility;
+      for(let tries=1;tries<=9;tries++){
+        const choice=Math.abs(direction)===3?((Math.floor(before/3)+Math.sign(direction)*Math.ceil(tries/3)+9)%3)*3+(before%3+(tries-1)%3)%3:(before+direction*tries+9)%9;
+        if(this.available(state,choice)){state.selectedAbility=choice;break}
+      }
+      if(state.selectedAbility!==before)state.audioEvents |= 64;
     }
     if (this.input.take('Space')) this.activate(state);
   }
