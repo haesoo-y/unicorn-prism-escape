@@ -18,10 +18,14 @@ let script = result.outputFiles[0].text;
 let style = await readFile('src/style.css', 'utf8');
 let html = await readFile('src/index.html', 'utf8');
 if (!debug) {
-  script = (await minify(script, {compress: {passes: 5, unsafe: true, unsafe_math: true, unsafe_arrows: true, unsafe_methods: true, booleans_as_integers: true, pure_getters: true, keep_fargs: false}, mangle: {toplevel: true}, toplevel: true, format: {comments: false}})).code;
-  const packer = new Packer([{data:script,type:'js',action:'eval'}],{allowFreeVars:true,modelRecipBaseCount:14,modelMaxCount:7,numAbbreviations:14,sparseSelectors:[0,1,2,3,7,13,26,44,57,114,194,209],recipLearningRate:710});
+  // Only explicitly listed game properties are shortened; browser built-ins stay reserved.
+  script = (await minify(script, {compress: {passes: 5, unsafe: true, unsafe_math: true, unsafe_arrows: true, unsafe_methods: true, booleans_as_integers: true, pure_getters: true, keep_fargs: false}, mangle: {toplevel: true, properties: {regex: /^(abilities|activate|aiSystem|attach|attack|attackAt|attackRect|attackRequested|audio|audioEvents|audioSystem|available|beats|cameraX|cameraY|choiceAt|choiceRects|choose|cleanupSystem|clear|collected|collisionSystem|colors|componentStores|consumed|context|contexts|cooldowns|createComponentStore|createEntity|createTagStore|damage|destroyEntity|down|draw|drawArena|drawAttack|drawAura|drawCharge|drawEnemy|drawGate|drawHud|drawMap|drawOverlay|drawPrism|drawShot|drawStick|drawTime|drawTitle|drawUnicorn|elapsed|endFrame|enemies|enemy|enemyHit|enemyTypes|entities|events|facings|frame|friendly|friendlyShots|gate|gateEntered|gates|health|height|held|hostileShots|index|input|inputSystem|invulnerable|keyDown|keyUp|lastPlayerX|lastPlayerY|lastTime|life|master|meleeFlash|move|moveX|moveY|movementSystem|music|nearestEnemy|nearestEnemySpeed|next|nextEntityId|nextStage|notes|phase|playerHit|players|pointerArmed|pointerAttack|pointerChoice|positions|pressed|prismColors|prisms|projectiles|radii|rainbowMask|reinforcementType|reinforcementWave|renderSystem|reset|resize|restartRequested|rulesSystem|selectedAbility|stage|stageElapsed|startMove|startStage|state|step|stickX|stickY|stopMove|stride|tagStores|take|tone|total|touchId|type|unicorn|update|value|velocities|viewHeight|viewWidth|visiblePrisms|vx|vy|wave|width|world|x|y)$/}}, toplevel: true, format: {comments: false}})).code;
+  // Keep already-compressed WebP data outside Roadroller; ZIP still contains every asset.
+  const assets=[];
+  script=script.replace(/"data:image\/webp;base64,[^"]+"/g,value=>{const name='__asset'+assets.length;assets.push('const '+name+'='+value+';');return name;});
+  const packer = new Packer([{data:script,type:'js',action:'eval'}],{allowFreeVars:true,modelRecipBaseCount:10,modelMaxCount:6,numAbbreviations:32,sparseSelectors:[0,1,2,3,7,13,42,57,70,113,148,393],recipLearningRate:777});
   const packed = packer.makeDecoder();
-  script = packed.firstLine + packed.secondLine;
+  script = assets.join('') + packed.firstLine + packed.secondLine;
   style = style.replace(/\s*([{}:;,])\s*/g, '$1').trim();
   html = html.replace(/>\s+</g, '><').trim();
 }

@@ -63,6 +63,11 @@ for(let pass=1;pass<=2;pass++){
  // The 200px aura boundary applies to enemies and hostile projectiles.
  for(const distance of [199,200,201]){const w=new World(),s=createGameState(7);spawnPlayer(w);s.abilities=1<<8;spawnEnemy(w,1600+distance,1100,0);spawnProjectile(w,1600+distance,1100,300,0,false);new AISystem().update(w,s,0);const e=[...w.enemies.keys()][0]!,v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-(distance<200?130:200))<.001);const shot=[...w.projectiles.keys()][0]!;assert.equal(w.velocities.get(shot)!.x,distance<200?105:300)}
  let shownRadius=0;auraContext.arc=(_x:number,_y:number,r:number)=>shownRadius=r;auraRenderer.drawAura(0,0,0);assert.equal(shownRadius,200);
+ // Large enemy: full-size slices, planted feet and alternating 8px lifts.
+ for(let frame=0;frame<16;frame++)for(const facing of [-1,1]){
+  const calls:any[][]=[],shadows:any[][]=[],transforms:any[][]=[];const c:any={save(){},restore(){},translate(...v:number[]){transforms.push(v)},scale(x:number,y:number){assert.equal(Math.abs(x),1);assert.equal(y,1)},rotate(){throw new Error('Large enemy must not rotate away from ground')},fillRect(...v:number[]){shadows.push(v)},drawImage(...v:any[]){calls.push(v)}};
+  const r:any=new RenderSystem(c,new InputState());r.drawEnemy(0,0,2,0,false,facing,frame*Math.PI*140/8,false);const legs=calls.slice(0,4);assert.equal(legs.length,4);assert.equal(shadows[0][1],38);assert.equal(transforms[1][1],11);assert(legs.some(v=>v[6]===14));assert(legs.every(v=>v[6]>=6&&v[6]<=14));if(frame===4)assert(legs.some(v=>v[6]===6));for(const v of calls){assert.equal(v[3],v[7]);assert.equal(v[4],v[8])}
+ }
  const audio:any=new AudioSystem(),phases=[0,2,5,8],counts:number[]=[],intervals:number[]=[];
  for(const stage of phases){const notes:any[][]=[];audio.tone=(...n:any[])=>notes.push(n);for(let beat=0;beat<32;beat++)audio.music(stage,beat,beat*.2);assert(notes.every(n=>Number.isFinite(n[0])&&n[0]>0&&n[1]>.01&&n[2]>0&&n[2]<.1));assert(notes.some(n=>n[0]<200)&&notes.some(n=>n[0]>=400));counts.push(notes.length);audio.audio={state:'running',currentTime:0};audio.next=0;audio.step=0;const state=createGameState(7);state.stage=stage;audio.update(state);intervals.push(audio.next)}
 
@@ -73,6 +78,6 @@ for(let pass=1;pass<=2;pass++){
  const lifecycle:any=new AudioSystem();assert.equal(contexts,0);events.pointerdown!();events.pointerdown!();assert.equal(contexts,1);lifecycle.update(createGameState(7));assert(ended.length>0);for(const node of ended)node.onended();assert.equal(disconnects,ended.length*2);events.keydown!({code:'KeyM',repeat:false});assert.equal(lifecycle.master.gain.value,0);events.keydown!({code:'KeyM',repeat:false});assert.equal(lifecycle.master.gain.value,1.12);
  (globalThis as any).addEventListener=()=>{};
  assert(counts[3]!>counts[0]!);assert(intervals.every((v,i)=>i===0||v<intervals[i-1]!));
- console.log(JSON.stringify({pass,spawnChecks,speedChecks,capAndRotationStages:10,fourDirectionFacingCases:3,gameLifecycleStages:10,renderChecks,projectileLife:'2 seconds',audioUnlockMuteAndCleanup:'pass',musicNotesPer32Steps:counts,musicStepSeconds:intervals,environment:'Node, Canvas/Audio API stubs; not browser or listening'}));
+ console.log(JSON.stringify({pass,spawnChecks,speedChecks,capAndRotationStages:10,fourDirectionFacingCases:3,gameLifecycleStages:10,largeEnemyMotionCases:32,renderChecks,projectileLife:'2 seconds',audioUnlockMuteAndCleanup:'pass',musicNotesPer32Steps:counts,musicStepSeconds:intervals,environment:'Node, Canvas/Audio API stubs; not browser or listening'}));
 }
 Math.random=oldRandom;
