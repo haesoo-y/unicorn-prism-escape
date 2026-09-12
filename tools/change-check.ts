@@ -34,10 +34,10 @@ for(let pass=1;pass<=2;pass++){
   const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([200,180,160][type]!+stage*5)*(slowed?.65:1))<.001);speedChecks++;
  }
  for(let stage=0;stage<10;stage++){
-  const g:any=new Game();g.state.stage=stage;g.startStage();g.lastTime=1000;g.state.stageElapsed=7.99;g.state.elapsed=42;g.state.invulnerable=100;const initial=g.world.enemies.size;g.frame(1020);assert.equal(g.world.enemies.size,initial+(stage<3?1:stage<6?2:3));
-  const elapsed=g.state.elapsed;g.state.phase='upgrade';for(let t=1040;t<7040;t+=20)g.frame(t);assert.equal(g.state.elapsed,elapsed);assert.equal(g.world.enemies.size,initial+(stage<3?1:stage<6?2:3));
-  g.startStage();assert.equal(g.state.stageElapsed,0);assert.equal(g.state.reinforcementWave,0);assert.equal(g.world.enemies.size,initial);assert.equal(g.state.elapsed,elapsed);assert.equal(g.world.entities.size,8+initial);
-  if(stage<9){g.nextStage();assert.equal(g.state.reinforcementWave,0);assert.equal(g.state.elapsed,elapsed)}g.reset();assert.equal(g.state.elapsed,0);assert.equal(g.state.reinforcementWave,0);
+  const g:any=new Game();g.gameState.stage=stage;g.startStage();g.lastTime=1000;g.gameState.stageElapsed=7.99;g.gameState.elapsed=42;g.gameState.invulnerable=100;const initial=g.world.enemies.size;g.frame(1020);assert.equal(g.world.enemies.size,initial+(stage<3?1:stage<6?2:3));
+  const elapsed=g.gameState.elapsed;g.gameState.phase='upgrade';for(let t=1040;t<7040;t+=20)g.frame(t);assert.equal(g.gameState.elapsed,elapsed);assert.equal(g.world.enemies.size,initial+(stage<3?1:stage<6?2:3));
+  g.startStage();assert.equal(g.gameState.stageElapsed,0);assert.equal(g.gameState.reinforcementWave,0);assert.equal(g.world.enemies.size,initial);assert.equal(g.gameState.elapsed,elapsed);assert.equal(g.world.entities.size,8+initial);
+  if(stage<9){g.nextStage();assert.equal(g.gameState.reinforcementWave,0);assert.equal(g.gameState.elapsed,elapsed)}g.reset();assert.equal(g.gameState.elapsed,0);assert.equal(g.gameState.reinforcementWave,0);
  }
  // Cap, partial waves, pending deaths, skipped-wave debt and rotating priority.
  for(let stage=0;stage<10;stage++){

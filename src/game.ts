@@ -37,31 +37,31 @@ export class Game {
   private readonly rulesSystem = new RulesSystem();
   private readonly renderSystem = new RenderSystem(context, this.input);
   private readonly cleanupSystem = new CleanupSystem();
-  private state: GameState = createGameState(7);
+  private gameState: GameState = createGameState(7);
   private lastTime = 0;
 
   constructor() {
     this.input.attach();
     canvas.addEventListener('pointerdown', event => {
-      if (this.state.phase === 'title') {this.state.phase = 'start'; return}
-      if (this.state.phase === 'play') {
-        if (this.renderSystem.attackAt(event.clientX, event.clientY, this.state)) this.input.attack();
+      if (this.gameState.phase === 'title') {this.gameState.phase = 'start'; return}
+      if (this.gameState.phase === 'play') {
+        if (this.renderSystem.attackAt(event.clientX, event.clientY, this.gameState)) this.input.attack();
         else if (event.pointerType !== 'mouse' && event.clientX < canvas.clientWidth / 2) {
           this.input.startMove(event.pointerId, event.clientX, event.clientY);
           canvas.setPointerCapture(event.pointerId);
         }
         return;
       }
-      if (this.state.phase === 'upgrade') {const choice = this.renderSystem.choiceAt(event.clientX, event.clientY); if (choice >= 0) this.input.choose(choice)}
+      if (this.gameState.phase === 'upgrade') {const choice = this.renderSystem.choiceAt(event.clientX, event.clientY); if (choice >= 0) this.input.choose(choice)}
     });
     canvas.addEventListener('pointermove', event => this.input.move(event.pointerId, event.clientX, event.clientY));
     canvas.addEventListener('pointerup', event => this.input.stopMove(event.pointerId));
     canvas.addEventListener('pointercancel', event => this.input.stopMove(event.pointerId));
     if (DEBUG) globalThis.__setStage = (stage, abilities = 0, safeSeconds = 1) => {
-      this.state.stage = Math.max(0, Math.min(STAGES.length - 1, stage));
-      this.state.abilities = abilities;
+      this.gameState.stage = Math.max(0, Math.min(STAGES.length - 1, stage));
+      this.gameState.abilities = abilities;
       this.startStage();
-      this.state.invulnerable = safeSeconds;
+      this.gameState.invulnerable = safeSeconds;
     };
     this.reset();
   }
@@ -70,19 +70,19 @@ export class Game {
 
   readonly frame = (time: number): void => {
     const delta = this.lastTime === 0 ? 0 : Math.min((time - this.lastTime) / 1000, .05);
-    this.state.audioEvents = 0;
-    this.lastTime = time; if (this.state.phase === 'start') {this.state.stageElapsed += delta;if(this.state.stageElapsed>.3){this.state.phase='play';this.state.stageElapsed=0}} else if (this.state.phase === 'play') {this.state.elapsed += delta; this.state.stageElapsed += delta}
-    this.inputSystem.update(this.world, this.state);
-    if (this.state.restartRequested) {if (this.state.phase === 'complete') this.reset(); else {this.state.restartRequested = false; this.startStage()}}
-    else if (this.state.phase === 'advance') this.nextStage();
-    this.aiSystem.update(this.world, this.state, delta);
+    this.gameState.audioEvents = 0;
+    this.lastTime = time; if (this.gameState.phase === 'start') {this.gameState.stageElapsed += delta;if(this.gameState.stageElapsed>.3){this.gameState.phase='play';this.gameState.stageElapsed=0}} else if (this.gameState.phase === 'play') {this.gameState.elapsed += delta; this.gameState.stageElapsed += delta}
+    this.inputSystem.update(this.world, this.gameState);
+    if (this.gameState.restartRequested) {if (this.gameState.phase === 'complete') this.reset(); else {this.gameState.restartRequested = false; this.startStage()}}
+    else if (this.gameState.phase === 'advance') this.nextStage();
+    this.aiSystem.update(this.world, this.gameState, delta);
     this.movementSystem.update(this.world, delta);
-    const collision = this.collisionSystem.update(this.world, this.state, delta);
-    this.rulesSystem.update(this.world,this.state, collision);
-    if (collision.enemyHit) this.state.audioEvents |= 2;
-    if (collision.colors) this.state.audioEvents |= 32;
-    this.audioSystem.update(this.state);
-    this.renderSystem.draw(this.world, this.state, time);
+    const collision = this.collisionSystem.update(this.world, this.gameState, delta);
+    this.rulesSystem.update(this.world,this.gameState, collision);
+    if (collision.enemyHit) this.gameState.audioEvents |= 2;
+    if (collision.colors) this.gameState.audioEvents |= 32;
+    this.audioSystem.update(this.gameState);
+    this.renderSystem.draw(this.world, this.gameState, time);
     this.cleanupSystem.update(this.world);
     if (DEBUG) {
       const player = this.world.players.values().next().value;
@@ -90,25 +90,25 @@ export class Game {
       const velocity = player === undefined ? undefined : this.world.velocities.get(player);
       let nearestEnemy=Infinity,nearestEnemySpeed=0;const enemyTypes=[0,0,0],shots=[0,0];for(const [entity,enemy] of this.world.enemies){enemyTypes[enemy.type]=(enemyTypes[enemy.type]??0)+1;const ep=this.world.positions.get(entity);if(ep&&position){const distance=Math.hypot(ep.x-position.x,ep.y-position.y);if(distance<nearestEnemy){nearestEnemy=distance;const ev=this.world.velocities.get(entity);nearestEnemySpeed=ev?Math.hypot(ev.x,ev.y):0}}}for(const shot of this.world.projectiles.values()){const index=shot.friendly?0:1;shots[index]=(shots[index]??0)+1}
       globalThis.__gameState = {
-        phase:this.state.phase,x:position?.x??0,y:position?.y??0,vx:velocity?.x??0,vy:velocity?.y??0,
-        elapsed:this.state.elapsed,stageElapsed:this.state.stageElapsed,collected:this.state.collected,total:this.state.total,stage:this.state.stage,
+        phase:this.gameState.phase,x:position?.x??0,y:position?.y??0,vx:velocity?.x??0,vy:velocity?.y??0,
+        elapsed:this.gameState.elapsed,stageElapsed:this.gameState.stageElapsed,collected:this.gameState.collected,total:this.gameState.total,stage:this.gameState.stage,
         entities:this.world.entities.size,positions:this.world.positions.size,velocities:this.world.velocities.size,
         players:this.world.players.size,prisms:this.world.prisms.size,enemies:this.world.enemies.size,enemyTypes,projectiles:this.world.projectiles.size,friendlyShots:shots[0]??0,hostileShots:shots[1]??0,
-        abilities:this.state.abilities,selectedAbility:this.state.selectedAbility,gates:this.world.gates.size,nearestEnemy:Number.isFinite(nearestEnemy)?nearestEnemy:-1,nearestEnemySpeed,cameraX:this.renderSystem.cameraX,cameraY:this.renderSystem.cameraY,
+        abilities:this.gameState.abilities,selectedAbility:this.gameState.selectedAbility,gates:this.world.gates.size,nearestEnemy:Number.isFinite(nearestEnemy)?nearestEnemy:-1,nearestEnemySpeed,cameraX:this.renderSystem.cameraX,cameraY:this.renderSystem.cameraY,
         viewWidth:this.renderSystem.viewWidth,viewHeight:this.renderSystem.viewHeight,visiblePrisms:this.renderSystem.visiblePrisms,
       };
     }
     this.input.endFrame(); requestAnimationFrame(this.frame);
   };
 
-  private reset(): void {this.state = createGameState(7); this.startStage();this.state.phase='title'}
-  private nextStage(): void {this.state.stage++; this.startStage()}
+  private reset(): void {this.gameState = createGameState(7); this.startStage();this.gameState.phase='title'}
+  private nextStage(): void {this.gameState.stage++; this.startStage()}
   private startStage(): void {
-    this.world.clear(); this.state.phase = 'play'; this.state.stageElapsed = this.state.reinforcementWave = this.state.reinforcementType = 0; this.state.collected = this.state.rainbowMask = 0; this.state.attackRequested = false; this.state.invulnerable = 1;
+    this.world.clear(); this.gameState.phase = 'play'; this.gameState.stageElapsed = this.gameState.reinforcementWave = this.gameState.reinforcementType = 0; this.gameState.collected = this.gameState.rainbowMask = 0; this.gameState.attackRequested = false; this.gameState.invulnerable = 1;
     spawnPlayer(this.world);
-    const positions = STAGES[this.state.stage] ?? STAGES[0];
+    const positions = STAGES[this.gameState.stage] ?? STAGES[0];
     positions.forEach(([x,y], color) => spawnPrism(this.world,x,y,color));
-    const counts = ENEMIES[this.state.stage] ?? ENEMIES[0]; let index = 0;
-    counts.forEach((count,type) => {for (let i=0;i<count;i++,index++) {const angle=index*2.4+this.state.stage, radius=620+(index%3)*170; spawnEnemy(this.world,Math.max(60,Math.min(WORLD_WIDTH-60,WORLD_WIDTH/2+Math.cos(angle)*radius)),Math.max(60,Math.min(WORLD_HEIGHT-60,WORLD_HEIGHT/2+Math.sin(angle)*radius)),type)}});
+    const counts = ENEMIES[this.gameState.stage] ?? ENEMIES[0]; let index = 0;
+    counts.forEach((count,type) => {for (let i=0;i<count;i++,index++) {const angle=index*2.4+this.gameState.stage, radius=620+(index%3)*170; spawnEnemy(this.world,Math.max(60,Math.min(WORLD_WIDTH-60,WORLD_WIDTH/2+Math.cos(angle)*radius)),Math.max(60,Math.min(WORLD_HEIGHT-60,WORLD_HEIGHT/2+Math.sin(angle)*radius)),type)}});
   }
 }

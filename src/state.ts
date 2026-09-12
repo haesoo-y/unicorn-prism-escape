@@ -4,15 +4,15 @@ export const VIEW_WIDTH = 960;
 export const VIEW_HEIGHT = 720;
 export const STAGE_COUNT = 10;
 export const ABILITIES = [
-  ['GATE MAP', 'Shows you and the open rainbow gate'],
-  ['PRISM MAP', 'Also shows every remaining prism'],
-  ['ENEMY SENSE', 'Also shows every enemy'],
-  ['RAINBOW HORN', 'SPACE: launch a wide unicorn charge'],
-  ['RAINBOW BOLT', 'Four-way bolts every 2 seconds'],
-  ['RAINBOW WAVE', 'Prisms clear shots and push enemies'],
-  ['SPEED UP', 'Move 20% faster'],
+  ['GATE MAP', 'Map: you and the open gate'],
+  ['PRISM MAP', 'Map: remaining prisms'],
+  ['ENEMY SENSE', 'Map: enemies'],
+  ['RAINBOW HORN', 'SPACE: wide charge'],
+  ['RAINBOW BOLT', '4-way bolts every 2s'],
+  ['RAINBOW WAVE', 'Prisms: 300px push + shot clear'],
+  ['SPEED UP', 'Move speed +20%'],
   ['PRISM MAGNET', 'Pull in nearby prisms'],
-  ['SLOW AURA', 'Enemies move at 65%; shots at 35%'],
+  ['SLOW AURA', 'Enemy speed 65%; shots 35%'],
 ] as const;
 export const RAINBOW_COLORS = ['#ff4057', '#ff8b2b', '#ffd23f', '#45d66b', '#3a9cff', '#5552c9', '#ad5cff'] as const;
 

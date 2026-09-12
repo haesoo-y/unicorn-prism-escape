@@ -22,6 +22,7 @@ export class World {
   readonly facings = this.createComponentStore<Facing>();
   readonly enemies = this.createComponentStore<Enemy>();
   readonly projectiles = this.createComponentStore<Projectile>();
+  readonly waves = this.createComponentStore<Cooldown>();
   readonly cooldowns = this.createComponentStore<Cooldown>();
   readonly players = this.createTagStore();
   readonly prisms = this.createTagStore();

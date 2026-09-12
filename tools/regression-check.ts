@@ -26,7 +26,7 @@ for(let pass=1;pass<=2;pass++){
   let layouts=0;
   for(const width of [320,360,390,599,600,844,960])for(const gate of [false,true]){
     const texts:any[]=[];const context:any={textAlign:'left',font:'',fillText(text:string,x:number,y:number){const w=text.length*10.8;const left=this.textAlign==='center'?x-w/2:this.textAlign==='right'?x-w:x;texts.push({text,left,right:left+w,y})},save(){},restore(){},translate(){},rotate(){},fillRect(){},strokeRect(){}};
-    const render:any=new RenderSystem(context,new InputState());render.width=width;render.height=568;
+    const render:any=new RenderSystem(context,new InputState());render.screenWidth=width;render.screenHeight=568;
     const world=new World();if(gate)world.gates.add(1 as any);const s=createGameState(7);s.stage=9;s.elapsed=179.999;render.drawHud(world,s);render.drawTime(s);
     for(const t of texts){assert(t.left>=0&&t.right<=width,`clipped ${width}: ${t.text}`);for(const other of texts)if(t!==other&&t.y===other.y)assert(t.right<=other.left||other.right<=t.left,`overlap ${width}`)}
     layouts++;

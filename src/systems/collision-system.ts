@@ -8,6 +8,7 @@ export class CollisionSystem {
   update(world: World, state: GameState, delta: number): CollisionResult {
     const result = {colors: 0, playerHit: false, enemyHit: false, gateEntered: false};
     if (state.phase !== 'play') return result;
+    for (const [entity, wave] of world.waves) if ((wave.value -= delta) <= 0) world.consumed.add(entity);
     const player = world.players.values().next().value;
     if (player === undefined) return result;
     const pp = world.positions.get(player), pr = world.radii.get(player)?.value ?? 0, facing = world.facings.get(player);
@@ -18,9 +19,8 @@ export class CollisionSystem {
       let dx = pp.x - p.x, dy = pp.y - p.y, distance = Math.hypot(dx, dy);
       if (state.abilities & 1 << 7 && distance < 160 && distance > 0) {p.x += dx / distance * 180 * delta; p.y += dy / distance * 180 * delta; distance = Math.hypot(pp.x - p.x, pp.y - p.y)}
       if (distance <= pr + r) {
-        world.consumed.add(prism);
         const color = world.prismColors.get(prism); if (color) result.colors |= 1 << color.index;
-        if (state.abilities & 1 << 5) this.wave(world, pp.x, pp.y);
+        if (state.abilities & 1 << 5) {this.wave(world, pp.x, pp.y); world.prisms.delete(prism); world.positions.set(prism, {...pp}); world.waves.set(prism, {value: .6})} else world.consumed.add(prism);
       }
     }
     if (state.attackRequested && state.abilities & 1 << 3) for (const [entity, enemy] of world.enemies) {
@@ -49,7 +49,11 @@ export class CollisionSystem {
   }
   private damage(world: World, entity: Entity, enemy: Enemy, damage: number): void {enemy.health -= damage; if (enemy.health <= 0) world.consumed.add(entity)}
   private wave(world: World, x: number, y: number): void {
-    for (const [entity, shot] of world.projectiles) {const p = world.positions.get(entity); if (!shot.friendly && p && Math.hypot(p.x - x, p.y - y) < 190) world.consumed.add(entity)}
-    for (const entity of world.enemies.keys()) {const p = world.positions.get(entity); if (!p) continue; const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy); if (d < 190 && d > 0) {p.x += dx / d * 120; p.y += dy / d * 120}}
+    for (const [entity, p] of world.positions) {
+      const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy);
+      if (d >= 300) continue;
+      if (world.projectiles.get(entity)?.friendly === false) world.consumed.add(entity);
+      if (world.enemies.has(entity) && d > 0) {p.x += dx / d * 120; p.y += dy / d * 120}
+    }
   }
 }
