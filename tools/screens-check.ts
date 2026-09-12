@@ -33,10 +33,12 @@ for(let pass=1;pass<=2;pass++){
  g.reset();assert.equal(g.gameState.elapsed,0);assert.deepEqual(g.gameState.stageTimes,[]);
  const renderer:any=new RenderSystem(context,new InputState());assert.equal(renderer.formatTime(178.43),'2:58.430');assert.equal(renderer.formatTime(59.9996),'1:00.000');assert.equal(renderer.formatTime(3600),'60:00.000');
  let screens=0;
- for(const [w,h]of [[320,480],[360,640],[720,540],[568,320]]){
+ for(const [w,h]of [[320,480],[360,640],[720,540],[568,320],[1280,720],[1920,1080],[844,390],[960,320],[960,440],[960,460]]){
   renderer.screenWidth=w;renderer.screenHeight=h;const calls:any[]=[];renderer.pixelText=(t:string,x:number,y:number,size:number)=>{calls.push({t,x,y,size});assert(x-(t.length*6-1)*size/2>=0,'left '+t);assert(x+(t.length*6-1)*size/2<=w,'right '+t);assert(y>=0&&y+7*size<=h,'vertical '+t)};
   renderer.drawTitle(0);assert(calls.some(c=>c.t==='PRESS SPACE OR TAP'));calls.length=0;
   const state=createGameState(7);state.stageTimes=Array(10).fill(17.843);state.elapsed=178.43;renderer.drawEnding(state);
+  const rows=calls.filter(c=>c.t.startsWith('STAGE ')),times=calls.filter(c=>c.t==='0:17.843');
+  assert.equal(rows.length,10);for(let i=0;i<10;i++){assert.equal(rows[i].t,'STAGE '+(i+1));assert.equal(rows[i].x,rows[0].x);assert.equal(times[i].x,times[0].x);assert.equal(rows[i].y,times[i].y);if(i)assert(rows[i].y>=rows[i-1].y+rows[i-1].size*7+1);assert(rows[i].y+rows[i].size*7<h-71)}
   assert.equal(calls.filter(c=>c.t.startsWith('STAGE ')).length,10);assert.equal(calls.filter(c=>c.t==='0:17.843').length,10);assert(calls.some(c=>c.t==='2:58.430'));screens+=2;
  }
  console.log({pass,stageRecords:10,retryIncluded:true,pauseAndReset:'passed',timeFormatting:'passed',screenLayouts:screens,environment:'Node with Canvas/Audio stubs; not actual complete playthrough'});
