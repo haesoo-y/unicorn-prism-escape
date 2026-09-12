@@ -104,7 +104,7 @@ export class Game {
   private reset(): void {this.state = createGameState(7); this.startStage();this.state.phase='title'}
   private nextStage(): void {this.state.stage++; this.startStage()}
   private startStage(): void {
-    this.world.clear(); this.state.phase = 'play'; this.state.stageElapsed = 0; this.state.collected = this.state.rainbowMask = 0; this.state.attackRequested = false; this.state.invulnerable = 1;
+    this.world.clear(); this.state.phase = 'play'; this.state.stageElapsed = this.state.reinforcementWave = 0; this.state.collected = this.state.rainbowMask = 0; this.state.attackRequested = false; this.state.invulnerable = 1;
     spawnPlayer(this.world);
     const positions = STAGES[this.state.stage] ?? STAGES[0];
     positions.forEach(([x,y], color) => spawnPrism(this.world,x,y,color));

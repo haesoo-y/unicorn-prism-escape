@@ -30,7 +30,7 @@ export class AudioSystem {
     const now = audio.currentTime;
     if (DEBUG && globalThis.__audioState) {globalThis.__audioState.state=audio.state;globalThis.__audioState.events|=state.audioEvents}
     if (this.next < now) this.next = now;
-    if (this.next < now + .08) {this.music(state.stage, this.step++, this.next); this.next += .25}
+    if (this.next < now + .08) {this.music(state.stage, this.step++, this.next); this.next += [60/132/2,60/144/2,60/156/2,60/168/2][state.stage<2?0:state.stage<5?1:state.stage<8?2:3]??.2}
     const event = state.audioEvents;
     if (event & 1) {this.tone(190,.14,.16,'sawtooth',now,85); this.tone(380,.08,.08,'square',now,170)}
     if (event & 2) {this.tone(95,.24,.22,'sawtooth',now,42); this.tone(55,.3,.18,'triangle',now,32)}
@@ -44,20 +44,17 @@ export class AudioSystem {
   private music(stage: number, step: number, at: number): void {
     if (DEBUG && globalThis.__audioState) globalThis.__audioState.beats++;
     const phase = stage < 2 ? 0 : stage < 5 ? 1 : stage < 8 ? 2 : 3, beat = step & 15, alternate = step >> 4 & 1;
-    const scale = [1,1.125,1.25,1.333,1.5,1.667,1.875], melody = [4,-1,5,4,2,-1,1,-1,4,5,6,-1,5,2,1,-1], root = 220;
-    if ([0,3,6,8,11,14].includes(beat)) this.tone(beat === 6 || beat === 14 ? 165 : 110,.16,beat%8? .055:.08,'triangle',at);
-    if (beat & 1) this.tone(70,.045,.025,'square',at,38);
-    if (!(beat & 3)) {
-      const chord = [0,3,4,0][beat >> 2]??0;
-      this.tone(root*(scale[chord]??1),.34,.032,phase < 2 ? 'triangle':'sine',at);
-      this.tone(root*(scale[(chord+2)%7]??1),.3,.024,phase === 3 ? 'sine':'triangle',at+.02);
-      this.tone(root*(scale[(chord+4)%7]??1),.24,.018,'sine',at+.04);
-    }
-    let note = melody[beat]??-1; if (alternate && beat === 10) note--; if (phase === 3 && beat === 14) note = 4;
-    if (note >= 0) this.tone(root*(scale[note]??1),beat%4===3?.1:.2,.045,phase === 0 ? 'sine':'triangle',at);
-    if (beat === 5 || beat === 13) this.tone(root*(scale[phase+1]??1)*2,.16,.03,'sine',at);
-    if (beat === 2 || beat === 10) this.tone(1760,.035,.018,'square',at,1100);
-    if (beat === 7 || beat === 15) this.tone((phase === 2 ? 740 : phase === 3 ? 660 : 880)*(alternate?.75:1),.12,.025,'square',at);
+    const scale=[1,1.125,1.25,1.333,1.5,1.667,1.875],melody=[4,2,5,4,2,-1,1,2,4,5,6,4,5,2,1,-1],chord=[0,3,4,0][step>>4&3]??0,root=220;
+    if(!(beat&3))this.tone(120,.12,.085,'sine',at,42);
+    if(beat%4===2)this.tone(140,.06,.035,'square',at,48);
+    this.tone(beat&1?1760:1320,.025,.012+phase*.002,'square',at,880);
+    if(phase>1)this.tone(2200,.025,.012,'square',at+.09,1200);
+    if(!(beat&1)||phase>1)this.tone(root/2*(scale[(chord+(beat%4===2?4:0))%7]??1),.16,.065,'triangle',at);
+    if(!(beat&3))for(let i=0;i<3;i++)this.tone(root*(scale[(chord+i*2)%7]??1),.4,.025,'triangle',at+i*.012);
+    let note=melody[beat]??-1;if(alternate&&beat===10)note--;if(phase===3&&note<0)note=4;
+    if(note>=0){const f=root*2*(scale[note]??1);this.tone(f,beat%4===3?.1:.19,.052,'triangle',at);if(phase)this.tone(f/2,.15,.019,'sine',at+.025)}
+    if(beat===7||beat===15)this.tone(root*(scale[phase+1]??1)*2,.12,.028,'sine',at);
+
   }
 
   private tone(frequency: number, duration: number, volume: number, type: OscillatorType, at: number, end = frequency): void {
@@ -66,6 +63,7 @@ export class AudioSystem {
     const oscillator = audio.createOscillator(), gain = audio.createGain(); oscillator.type = type;
     oscillator.frequency.setValueAtTime(frequency, at); if (end !== frequency) oscillator.frequency.exponentialRampToValueAtTime(end, at + duration);
     gain.gain.setValueAtTime(.0001, at); gain.gain.exponentialRampToValueAtTime(volume, at + .01); gain.gain.exponentialRampToValueAtTime(.0001, at + duration);
+    oscillator.onended=()=>{oscillator.disconnect();gain.disconnect()};
     oscillator.connect(gain).connect(master); oscillator.start(at); oscillator.stop(at + duration + .02);
   }
 }

@@ -32,6 +32,7 @@ export interface GameState {
   invulnerable: number;
   elapsed: number;
   stageElapsed: number;
+  reinforcementWave: number;
   restartRequested: boolean;
   audioEvents: number;
 }
@@ -41,6 +42,6 @@ export function createGameState(total: number): GameState {
     phase: 'play', collected: 0, total, stage: 0, rainbowMask: 0,
     selectedAbility: 0, pointerArmed: -1, abilities: 0,
     attackRequested: false, meleeFlash: 0, invulnerable: 0,
-    elapsed: 0, stageElapsed: 0, restartRequested: false, audioEvents: 0,
+    elapsed: 0, stageElapsed: 0, reinforcementWave: 0, restartRequested: false, audioEvents: 0,
   };
 }
