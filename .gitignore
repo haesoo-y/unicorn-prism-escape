@@ -38,3 +38,6 @@ pnpm-debug.log*
 .cache/
 .tmp/
 tmp/
+
+# Local development dashboard and reference files
+/debug/

@@ -1,4 +1,4 @@
-import {readFile,writeFile} from 'node:fs/promises';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {build} from 'esbuild';
 const root=new URL('..',import.meta.url).pathname;
 const game=await readFile(root+'/src/game.ts','utf8');
@@ -11,5 +11,6 @@ const bundle=await build({stdin:{contents:`import {World} from './src/ecs/world'
 const data={stages,enemies,abilities};
 let template=await readFile(root+'/tools/dashboard-template.html','utf8');
 template=template.replace('/*DATA*/','window.DATA='+JSON.stringify(data)+';').replace('/*RENDERER*/',bundle.outputFiles[0].text);
-await writeFile(root+'/stage-dashboard.html',template);
-console.log('Created stage-dashboard.html',Buffer.byteLength(template),'bytes');
+await mkdir(root+'/debug',{recursive:true});
+await writeFile(root+'/debug/stage-dashboard.html',template);
+console.log('Created debug/stage-dashboard.html',Buffer.byteLength(template),'bytes');
