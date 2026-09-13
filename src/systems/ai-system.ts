@@ -14,7 +14,8 @@ export class AISystem {
     playerCooldown.value -= delta;
     if (state.attackRequested) {state.meleeFlash = .15; state.audioEvents |= 4}
     if (state.abilities & 1 << 4 && playerCooldown.value <= 0) {
-      for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]] as const) spawnProjectile(world, playerPosition.x + x * 34, playerPosition.y + y * 34, x * 400, y * 400, true);
+      let x=facing.x,y=facing.y;
+      for(let i=0;i<4;i++){spawnProjectile(world, playerPosition.x + x * 34, playerPosition.y + y * 34, x * 400, y * 400, true);[x,y]=[-y,x]}
       state.audioEvents |= 8;
       playerCooldown.value = 2;
     }
