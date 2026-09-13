@@ -111,16 +111,16 @@ for(let pass=1;pass<=2;pass++){
   const legs=calls.slice(1);assert(legs.some(v=>v[6]===top-half));assert(legs.every(v=>v[6]>=top-half-lift&&v[6]<=top-half));if(frame===4||frame===12)assert(legs.some(v=>v[6]===top-half-lift));for(const v of calls){assert.equal(v[3],v[7]);assert.equal(v[4],v[8])}
  }
  const audio:any=new AudioSystem(),phases=[0,2,5,8],counts:number[]=[],intervals:number[]=[];
- for(const stage of phases){const notes:any[][]=[];audio.tone=(...n:any[])=>notes.push(n);for(let beat=0;beat<32;beat++)audio.music(stage,beat,beat*.2);assert(notes.every(n=>Number.isFinite(n[0])&&n[0]>0&&n[1]>.01&&n[2]>0&&n[2]<.1));assert(notes.some(n=>n[0]<200)&&notes.some(n=>n[0]>=400));counts.push(notes.length);audio.audio={state:'running',currentTime:0};audio.next=0;audio.step=0;const state=createGameState(7);state.stage=stage;audio.update(state);intervals.push(audio.next)}
+ for(const stage of phases){const notes:any[][]=[];audio.tone=(...n:any[])=>notes.push(n);for(let beat=0;beat<32;beat++)audio.music(phases.indexOf(stage),beat,beat*.2);assert(notes.every(n=>Number.isFinite(n[0])&&n[0]>0&&n[1]>.01&&n[2]>0&&n[2]<=.121));assert(notes.some(n=>n[0]<200)&&notes.some(n=>n[0]>=400));counts.push(notes.length);audio.audio={state:'running',currentTime:0};audio.next=0;audio.step=0;const state=createGameState(7);state.stage=stage;audio.update(state);intervals.push(audio.next)}
 
  // Skill sounds: distinct timing, wave only on prism collection with the upgrade.
  const sfx:any=new AudioSystem();sfx.audio={state:'running',currentTime:0};sfx.next=10;
  const sounds=(event:number,abilities=0)=>{const notes:any[][]=[];sfx.tone=(...args:any[])=>notes.push(args);const state=createGameState(7);state.audioEvents=event;state.abilities=abilities;sfx.update(state);return notes};
- const charge=sounds(4),bolt=sounds(8),collect=sounds(32),wave=sounds(32,32);
+ const enemy=sounds(1),charge=sounds(4),bolt=sounds(8),collect=sounds(32),wave=sounds(32,32);
  assert.equal(charge.length,2);assert(charge[0]![0]<charge[0]![5]);assert(charge[1]![4]>charge[0]![4]);
- assert.equal(bolt.length,2);assert.equal(bolt[0]![3],'square');assert(bolt[0]![0]>bolt[0]![5]);assert.equal(bolt[0]![2],.45);assert.equal(charge[0]![2],.4);assert(bolt.every(n=>n[4]===0));assert.deepEqual(sounds(4),charge);assert.deepEqual(sounds(8),bolt);
- assert.equal(collect.length,3);assert.equal(wave.length,4);assert(wave.some(n=>n[1]===.5&&n[2]===.3&&n[5]===55));assert.equal(sounds(0,32).length,0);assert.equal(sounds(4|8|32,32).length,8);
- for(const note of [...charge,...bolt,...wave])assert(note[1]>.01&&note[2]>0&&note[2]<=.45&&Number.isFinite(note[4]));
+ assert.equal(bolt.length,2);assert.equal(bolt[0]![3],'square');assert(bolt[0]![0]>bolt[0]![5]);assert.equal(bolt[0]![2],.2304);assert.equal(charge[0]![2],.2088);assert(bolt.every(n=>n[4]===0));assert.deepEqual(sounds(4),charge);assert.deepEqual(sounds(8),bolt);
+ assert.deepEqual(enemy.map(n=>n[2]),bolt.map(n=>n[2]));assert.equal(collect.length,3);assert.equal(wave.length,4);assert(wave.some(n=>n[1]===.5&&n[2]===.1512&&n[5]===55));assert.equal(sounds(0,32).length,0);assert.equal(sounds(4|8|32,32).length,8);
+ for(const note of [...enemy,...charge,...bolt,...wave])assert(note[1]>.01&&note[2]>0&&note[2]<=.2304&&Number.isFinite(note[4]));
  const ended:any[]=[],events:Record<string,Function>={};let contexts=0,disconnects=0;
  (globalThis as any).addEventListener=(name:string,fn:Function)=>{events[name]=fn};
  const param=()=>({value:1,setValueAtTime(v:number,t:number){assert(Number.isFinite(v)&&v>=0&&Number.isFinite(t))},exponentialRampToValueAtTime(v:number,t:number){assert(Number.isFinite(v)&&v>0&&Number.isFinite(t))}});

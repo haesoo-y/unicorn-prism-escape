@@ -6,7 +6,7 @@ const built = spawnSync(process.execPath, ['tools/build-game.mjs', '--prod'], {s
 if (built.status) process.exit(built.status ?? 1);
 const name = Buffer.from('index.html');
 const data = await readFile('build/index.html');
-const compressed = Buffer.from(await deflateAsync(data, {numiterations: 1000}));
+const compressed = Buffer.from(await deflateAsync(data, {numiterations: 2000}));
 let crc = 0xffffffff;
 for (const byte of data) {
   crc ^= byte;

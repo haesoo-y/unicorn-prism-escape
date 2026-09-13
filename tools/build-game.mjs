@@ -23,7 +23,7 @@ if (!debug) {
   // Keep already-compressed WebP data outside Roadroller; ZIP still contains every asset.
   const assets=[];
   script=script.replace(/"data:image\/webp;base64,[^"]+"/g,value=>{const name='__a'+assets.length;assets.push('const '+name+'='+value+';');return name;});
-  const packer = new Packer([{data:script,type:'js',action:'eval'}],{allowFreeVars:true,modelRecipBaseCount:21,modelMaxCount:4,numAbbreviations:32,sparseSelectors:[0,1,2,3,5,6,7,8,13,25,42,49,74,193,385,396],precision:16,recipLearningRate:2200});
+  const packer = new Packer([{data:script,type:'js',action:'eval'}],{allowFreeVars:true,modelRecipBaseCount:20,modelMaxCount:4,numAbbreviations:32,sparseSelectors:[0,1,2,3,5,6,7,8,13,25,42,49,74,193,385,396],precision:16,recipLearningRate:1900});
   const packed = packer.makeDecoder();
   script = assets.join('') + packed.firstLine + packed.secondLine;
   style = style.replace('*{box-sizing:border-box}', '').replace('margin:0;width:100%;','margin:0;').replace(/\s*([{}:;,])\s*/g, '$1').trim();
