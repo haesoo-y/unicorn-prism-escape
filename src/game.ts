@@ -43,11 +43,13 @@ export class Game {
   constructor() {
     this.input.attach();
     canvas.addEventListener('pointerdown', event => {
+      if (this.gameState.phase === 'failed' || this.gameState.phase === 'complete') {this.gameState.restartRequested = true; return}
       if (this.gameState.phase === 'title') {this.gameState.phase = 'start'; return}
       if (this.gameState.phase === 'play') {
         if (this.renderSystem.attackAt(event.clientX, event.clientY, this.gameState)) this.input.attack();
-        else if (event.pointerType !== 'mouse' && event.clientX < canvas.clientWidth / 2) {
-          this.input.startMove(event.pointerId, event.clientX, event.clientY);
+        else if (this.input.touchId < 0 && Math.hypot(event.clientX-66,event.clientY-canvas.clientHeight+66)<56) {
+          this.input.startMove(event.pointerId, 66, canvas.clientHeight-66);
+          this.input.move(event.pointerId,event.clientX,event.clientY);
           canvas.setPointerCapture(event.pointerId);
         }
         return;
@@ -57,6 +59,7 @@ export class Game {
     canvas.addEventListener('pointermove', event => this.input.move(event.pointerId, event.clientX, event.clientY));
     canvas.addEventListener('pointerup', event => this.input.stopMove(event.pointerId));
     canvas.addEventListener('pointercancel', event => this.input.stopMove(event.pointerId));
+    canvas.addEventListener('lostpointercapture', event => this.input.stopMove(event.pointerId));
     if (DEBUG) globalThis.__setStage = (stage, abilities = 0, safeSeconds = 1) => {
       this.gameState.stage = Math.max(0, Math.min(STAGES.length - 1, stage));
       this.gameState.abilities = abilities;
