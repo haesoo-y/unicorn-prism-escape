@@ -22,13 +22,13 @@ export class AISystem {
       const position = world.positions.get(entity), velocity = world.velocities.get(entity), cooldown = world.cooldowns.get(entity);
       if (!position || !velocity || !cooldown) continue;
       const dx = playerPosition.x - position.x, dy = playerPosition.y - position.y, distance = Math.hypot(dx, dy) || 1;
-      let speed = ([240, 230, 220][enemy.type] ?? 230) + state.stage * 5;
+      let speed = ([230, 220, 210][enemy.type] ?? 220) + state.stage * 5;
       if (state.abilities & 1 << 8 && distance < 200) speed *= .65;
-      const rush = enemy.type !== 1 && (state.elapsed + entity * (enemy.type === 0 ? .37 : .61)) % (enemy.type === 0 ? 2.6 : 4.2) < (enemy.type === 0 ? .85 : 1.4);
+      const rush = distance < 120 || enemy.type !== 1 && (state.elapsed + entity * (enemy.type === 0 ? .37 : .61)) % (enemy.type === 0 ? 2.6 : 4.2) < (enemy.type === 0 ? .85 : 1.4);
       const orbit=rush?0:enemy.type===0?18+entity%3*24:enemy.type===1?70+entity%3*18:24+entity%2*38,angle=entity*2.4+state.elapsed*(enemy.type===0 ? .8 : enemy.type===1 ? -.45 : .22),chaseX=playerPosition.x+Math.cos(angle)*orbit-position.x,chaseY=playerPosition.y+Math.sin(angle)*orbit-position.y,chaseDistance=Math.hypot(chaseX,chaseY)||1,nx=chaseX/chaseDistance,ny=chaseY/chaseDistance,curve=rush?0:enemy.type===0?Math.sin(state.elapsed*3+entity*1.7)*.2:enemy.type===1?(entity%2 ? .22 : -.22):Math.sin(state.elapsed*.9+entity*2)*.12;
       let steerX=nx-ny*curve,steerY=ny+nx*curve;const radius=world.radii.get(entity)?.value??10;
       for(const other of world.enemies.keys()){if(other===entity||world.consumed.has(other))continue;const op=world.positions.get(other),otherRadius=world.radii.get(other)?.value??10;if(!op)continue;const ox=position.x-op.x,oy=position.y-op.y,gap=radius+otherRadius+8,d=Math.hypot(ox,oy);if(d<gap){const angle=(entity-other)*2.4,force=(gap-d)/gap*(rush?.8:2.2);steerX+=(d?ox/d:Math.cos(angle))*force;steerY+=(d?oy/d:Math.sin(angle))*force}}
-      const length=Math.hypot(steerX,steerY)||1,vx=steerX/length*speed,vy=steerY/length*speed;
+      const length=Math.max(1,Math.hypot(steerX,steerY)),vx=steerX/length*speed,vy=steerY/length*speed;
       if(enemy.type===2){const turn=Math.min(1,delta*(rush?5:2.5));velocity.x+=(vx-velocity.x)*turn;velocity.y+=(vy-velocity.y)*turn}else{velocity.x=vx;velocity.y=vy}
       cooldown.value -= delta;
       if (enemy.type === 1 && distance < 260 && cooldown.value <= 0) {
