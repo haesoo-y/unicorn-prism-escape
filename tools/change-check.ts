@@ -67,6 +67,13 @@ for(let pass=1;pass<=2;pass++){
   for(const a of legs){assert.equal(a[5],a[1]-cell*56-28,'no lateral gap at diagonal leg seam');assert(a[6]<=a[2]-28,'leg remains attached by overlapping the body')}
   assert.equal(calls.reduce((area,a)=>area+a[3]*a[4],0),56*56,'every source pixel drawn once');
  }
+ // Side-view rear foot (source x9..22) must move as a whole, outside the fixed tail.
+ for(const facing of [-1,1])for(let phase=0;phase<16;phase++){
+  const calls:any[][]=[],c:any={save(){},restore(){},translate(){},scale(){},drawImage(...a:any[]){calls.push(a)}};
+  const r:any=new RenderSystem(c,new InputState());r.stride=phase*Math.PI/8;r.drawUnicorn(0,0,facing,0,false,1,true);
+  const lower=calls.filter(a=>a[2]>0),fixed=lower[0],moving=lower.slice(1);assert(fixed[1]+fixed[3]<=56+9,'fixed tail must not retain rear-leg outline');
+  assert(moving.some(a=>a[1]<=56+9&&a[1]+a[3]>56+22),'rear foot must remain within one moving crop');
+ }
  const auraContext:any={beginPath(){},arc(){},fill(){},stroke(){}};const auraRenderer:any=new RenderSystem(auraContext,new InputState());auraRenderer.drawAura(0,0,0);assert.equal(auraContext.strokeStyle,'#75fff022');assert.equal(auraContext.fillStyle,'#64ffe808');
  const sw=new World(),ss=createGameState(7);spawnPlayer(sw);ss.abilities=1<<8;spawnProjectile(sw,1700,1100,300,0,false);const se=[...sw.projectiles.keys()][0]!;new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,105);sw.positions.set(se,{x:2000,y:1100});new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,300);
  // The 200px aura boundary applies to enemies and hostile projectiles.
