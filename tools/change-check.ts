@@ -32,7 +32,7 @@ for(let pass=1;pass<=2;pass++){
  for(let stage=0;stage<10;stage++)for(let type=0;type<3;type++)for(const slowed of [false,true]){
   const w=new World(),s=createGameState(7),ai=new AISystem();s.stage=stage;s.abilities=slowed?1<<8:0;spawnPlayer(w);spawnEnemy(w,slowed?1750:2200,1100,type);const e=[...w.enemies.keys()][0]!;
   for(let f=0;f<180;f++)ai.update(w,s,.05);
-  const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([210,205,200][type]!+[0,8,18,28,38,50,62,74,88,102][stage]!-(slowed?50:0)))<.001);speedChecks++;
+  const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([220,210,200][type]!+[0,6,15,24,33,45,57,69,84,99][stage]!-(slowed?50:0)))<.001);speedChecks++;
  }
  for(let stage=0;stage<10;stage++){
   const g:any=new Game();g.gameState.stage=stage;g.startStage();g.lastTime=1000;g.gameState.stageElapsed=spawnIntervals[stage]!-.01;g.gameState.elapsed=42;g.gameState.invulnerable=100;const initial=g.world.enemies.size;g.frame(1020);assert.equal(g.world.enemies.size,initial+1);
@@ -94,7 +94,7 @@ for(let pass=1;pass<=2;pass++){
  const auraContext:any={beginPath(){},arc(){},fill(){},stroke(){}};const auraRenderer:any=new RenderSystem(auraContext,new InputState());auraRenderer.drawAura(0,0,0);assert.equal(auraContext.strokeStyle,'#75fff022');assert.equal(auraContext.fillStyle,'#64ffe808');
  const sw=new World(),ss=createGameState(7);spawnPlayer(sw);ss.abilities=1<<8;spawnProjectile(sw,1700,1100,300,0,false);const se=[...sw.projectiles.keys()][0]!;new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,250);sw.positions.set(se,{x:2000,y:1100});new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,300);
  // The 200px aura boundary applies to enemies and hostile projectiles.
- for(const distance of [199,200,201]){const w=new World(),s=createGameState(7);spawnPlayer(w);s.abilities=1<<8;spawnEnemy(w,1600+distance,1100,0);spawnProjectile(w,1600+distance,1100,300,0,false);new AISystem().update(w,s,0);const e=[...w.enemies.keys()][0]!,v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-(distance<200?160:210))<.001);const shot=[...w.projectiles.keys()][0]!;assert.equal(w.velocities.get(shot)!.x,distance<200?250:300)}
+ for(const distance of [199,200,201]){const w=new World(),s=createGameState(7);spawnPlayer(w);s.abilities=1<<8;spawnEnemy(w,1600+distance,1100,0);spawnProjectile(w,1600+distance,1100,300,0,false);new AISystem().update(w,s,0);const e=[...w.enemies.keys()][0]!,v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-(distance<200?170:220))<.001);const shot=[...w.projectiles.keys()][0]!;assert.equal(w.velocities.get(shot)!.x,distance<200?250:300)}
  let shownRadius=0;auraContext.arc=(_x:number,_y:number,r:number)=>shownRadius=r;auraRenderer.drawAura(0,0,0);assert.equal(shownRadius,200);
  // All demons: native-size complete source coverage and two alternating planted legs.
  for(const type of [0,1,2])for(let frame=0;frame<16;frame++)for(const facing of [-1,1]){
