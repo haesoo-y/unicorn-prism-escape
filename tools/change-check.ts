@@ -117,13 +117,13 @@ for(let pass=1;pass<=2;pass++){
  const sfx:any=new AudioSystem();sfx.audio={state:'running',currentTime:0};sfx.next=10;
  const sounds=(event:number,abilities=0)=>{const notes:any[][]=[];sfx.tone=(...args:any[])=>notes.push(args);const state=createGameState(7);state.audioEvents=event;state.abilities=abilities;sfx.update(state);return notes};
  const charge=sounds(4),bolt=sounds(8),collect=sounds(32),wave=sounds(32,32);
- assert.equal(charge.length,2);assert(charge[0]![0]>charge[0]![5]);assert(charge[1]![4]>charge[0]![4]);
- assert.equal(bolt.length,3);assert(bolt.every(n=>n[1]<.05&&n[3]==='sawtooth'&&n[0]>n[5]));assert(bolt[2]![4]<.1);
- assert.equal(collect.length,3);assert.equal(wave.length,4);assert(wave.some(n=>n[1]===.5&&n[5]===55));assert.equal(sounds(0,32).length,0);assert.equal(sounds(4|8|32,32).length,9);
- for(const note of [...charge,...bolt,...wave])assert(note[1]>.01&&note[2]>0&&note[2]<=.2&&Number.isFinite(note[4]));
+ assert.equal(charge.length,2);assert(charge[0]![0]<charge[0]![5]);assert(charge[1]![4]>charge[0]![4]);
+ assert.equal(bolt.length,2);assert.equal(bolt[0]![3],'square');assert(bolt[0]![0]>bolt[0]![5]);assert.equal(bolt[0]![2],.45);assert.equal(charge[0]![2],.4);assert(bolt.every(n=>n[4]===0));assert.deepEqual(sounds(4),charge);assert.deepEqual(sounds(8),bolt);
+ assert.equal(collect.length,3);assert.equal(wave.length,4);assert(wave.some(n=>n[1]===.5&&n[2]===.3&&n[5]===55));assert.equal(sounds(0,32).length,0);assert.equal(sounds(4|8|32,32).length,8);
+ for(const note of [...charge,...bolt,...wave])assert(note[1]>.01&&note[2]>0&&note[2]<=.45&&Number.isFinite(note[4]));
  const ended:any[]=[],events:Record<string,Function>={};let contexts=0,disconnects=0;
  (globalThis as any).addEventListener=(name:string,fn:Function)=>{events[name]=fn};
- const param=()=>({value:1,setValueAtTime(){},exponentialRampToValueAtTime(){}});
+ const param=()=>({value:1,setValueAtTime(v:number,t:number){assert(Number.isFinite(v)&&v>=0&&Number.isFinite(t))},exponentialRampToValueAtTime(v:number,t:number){assert(Number.isFinite(v)&&v>0&&Number.isFinite(t))}});
  (globalThis as any).AudioContext=class {state='suspended';currentTime=0;destination={};constructor(){contexts++}resume(){this.state='running'}createGain(){return {gain:param(),connect(t:any){return t},disconnect(){disconnects++}}}createOscillator(){const node:any={frequency:param(),connect(t:any){return t},start(){},stop(t:number){assert(Number.isFinite(t)&&t>0);ended.push(node)},disconnect(){disconnects++}};return node}};
  const lifecycle:any=new AudioSystem();assert.equal(contexts,0);events.pointerdown!();events.pointerdown!();assert.equal(contexts,1);const allSounds=createGameState(7);allSounds.audioEvents=127;allSounds.abilities=32;lifecycle.update(allSounds);assert(ended.length>0);for(const node of ended)node.onended();assert.equal(disconnects,ended.length*2);events.keydown!({code:'KeyM',repeat:false});assert.equal(lifecycle.master.gain.value,0);events.keydown!({code:'KeyM',repeat:false});assert.equal(lifecycle.master.gain.value,1.12);
  (globalThis as any).addEventListener=()=>{};
