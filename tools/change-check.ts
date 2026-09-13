@@ -40,6 +40,13 @@ for(let pass=1;pass<=2;pass++){
   g.startStage();assert.equal(g.gameState.stageElapsed,0);assert.equal(g.gameState.reinforcementWave,0);assert.equal(g.world.enemies.size,initial);assert.equal(g.gameState.elapsed,elapsed);assert.equal(g.world.entities.size,9+initial);
   if(stage<9){g.nextStage();assert.equal(g.gameState.reinforcementWave,0);assert.equal(g.gameState.elapsed,elapsed)}g.reset();assert.equal(g.gameState.elapsed,0);assert.equal(g.gameState.reinforcementWave,0);
  }
+ for(let stage=0;stage<10;stage++){
+  const w=new World(),s=createGameState(7),ai=new AISystem(),base=[250,256,265,274,283,295,307,319,334,349][stage]!;
+  s.stage=stage;spawnPlayer(w);spawnEnemy(w,1820,1100,1);const e=[...w.enemies.keys()][0]!;w.cooldowns.get(e)!.value=0;ai.update(w,s,0);
+  const shot=[...w.projectiles.keys()][0]!,v=w.velocities.get(shot)!;assert.equal(Math.hypot(v.x,v.y),base);
+  s.abilities=1<<8;
+  for(const distance of [199,199,200,201,199]){w.positions.set(shot,{x:1600+distance,y:1100});ai.update(w,s,0);assert.equal(Math.hypot(v.x,v.y),base-(distance<200?50:0))}
+ }
  // Existing caps, pending deaths and random type selection without skipped-wave debt.
  for(let stage=0;stage<10;stage++){
   const w=new World(),s=createGameState(7),rules=new RulesSystem(),cap=[4,7,9,15,17,19,24,27,30,35][stage]!,kinds=Math.min(3,1+Math.floor(stage/3));s.stage=stage;spawnPlayer(w);
@@ -55,7 +62,7 @@ for(let pass=1;pass<=2;pass++){
   const g:any=new Game();g.gameState.phase='play';g.gameState.abilities=boosted?64:0;g.input.moveX=x;g.input.moveY=y;g.inputSystem.update(g.world,g.gameState);const v=g.world.velocities.get([...g.world.players][0]);assert(Math.abs(Math.hypot(v.x,v.y)-(boosted?300:260))<.001);
  }
  for(const type of [0,1,2]){const w=new World();spawnEnemy(w,0,0,type);assert.equal([...w.enemies.values()][0]!.health,type===2?3:1)}
- {const w=new World(),s=createGameState(7),ai=new AISystem();spawnPlayer(w);spawnEnemy(w,1800,1100,1);const e=[...w.enemies.keys()][0]!;w.cooldowns.get(e)!.value=0;ai.update(w,s,0);assert.equal(w.projectiles.size,1);assert.equal(w.cooldowns.get(e)!.value,2);const v=[...w.projectiles.keys()].map(e=>w.velocities.get(e)!)[0]!;assert.equal(Math.hypot(v.x,v.y),300);ai.update(w,s,1.999);assert.equal(w.projectiles.size,1);ai.update(w,s,.002);assert.equal(w.projectiles.size,2)}
+ {const w=new World(),s=createGameState(7),ai=new AISystem();spawnPlayer(w);spawnEnemy(w,1800,1100,1);const e=[...w.enemies.keys()][0]!;w.cooldowns.get(e)!.value=0;ai.update(w,s,0);assert.equal(w.projectiles.size,1);assert.equal(w.cooldowns.get(e)!.value,2);const v=[...w.projectiles.keys()].map(e=>w.velocities.get(e)!)[0]!;assert.equal(Math.hypot(v.x,v.y),250);ai.update(w,s,1.999);assert.equal(w.projectiles.size,1);ai.update(w,s,.002);assert.equal(w.projectiles.size,2)}
  for(const facing of [[1,0],[0,-1],[-1,1]]){
   const w=new World(),s=createGameState(7),ai=new AISystem();spawnPlayer(w);const p=[...w.players][0]!;w.facings.set(p,{x:facing[0]!,y:facing[1]!});ai.update(w,s,0);assert.equal(w.projectiles.size,0);s.abilities=1<<4;ai.update(w,s,0);assert.equal(w.projectiles.size,4);
   const vectors=[...w.projectiles.keys()].map(e=>{const v=w.velocities.get(e)!,q=w.positions.get(e)!;assert.equal(Math.hypot(v.x,v.y),400);assert.equal(q.x,1600+v.x/400*34);assert.equal(q.y,1100+v.y/400*34);assert.equal(w.projectiles.get(e)!.life,1);return `${v.x},${v.y}`}).sort();assert.deepEqual(vectors,['-400,0','0,-400','0,400','400,0'].sort());
@@ -92,9 +99,9 @@ for(let pass=1;pass<=2;pass++){
   assert.equal(calls.reduce((area,a)=>area+a[3]*a[4],0),56*56);
  }
  const auraContext:any={beginPath(){},arc(){},fill(){},stroke(){}};const auraRenderer:any=new RenderSystem(auraContext,new InputState());auraRenderer.drawAura(0,0,0);assert.equal(auraContext.strokeStyle,'#75fff022');assert.equal(auraContext.fillStyle,'#64ffe808');
- const sw=new World(),ss=createGameState(7);spawnPlayer(sw);ss.abilities=1<<8;spawnProjectile(sw,1700,1100,300,0,false);const se=[...sw.projectiles.keys()][0]!;new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,250);sw.positions.set(se,{x:2000,y:1100});new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,300);
+ const sw=new World(),ss=createGameState(7);spawnPlayer(sw);ss.abilities=1<<8;spawnProjectile(sw,1700,1100,300,0,false);const se=[...sw.projectiles.keys()][0]!;new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,200);sw.positions.set(se,{x:2000,y:1100});new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,250);
  // The 200px aura boundary applies to enemies and hostile projectiles.
- for(const distance of [199,200,201]){const w=new World(),s=createGameState(7);spawnPlayer(w);s.abilities=1<<8;spawnEnemy(w,1600+distance,1100,0);spawnProjectile(w,1600+distance,1100,300,0,false);new AISystem().update(w,s,0);const e=[...w.enemies.keys()][0]!,v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-(distance<200?170:220))<.001);const shot=[...w.projectiles.keys()][0]!;assert.equal(w.velocities.get(shot)!.x,distance<200?250:300)}
+ for(const distance of [199,200,201]){const w=new World(),s=createGameState(7);spawnPlayer(w);s.abilities=1<<8;spawnEnemy(w,1600+distance,1100,0);spawnProjectile(w,1600+distance,1100,300,0,false);new AISystem().update(w,s,0);const e=[...w.enemies.keys()][0]!,v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-(distance<200?170:220))<.001);const shot=[...w.projectiles.keys()][0]!;assert.equal(w.velocities.get(shot)!.x,distance<200?200:250)}
  let shownRadius=0;auraContext.arc=(_x:number,_y:number,r:number)=>shownRadius=r;auraRenderer.drawAura(0,0,0);assert.equal(shownRadius,200);
  // All demons: native-size complete source coverage and two alternating planted legs.
  for(const type of [0,1,2])for(let frame=0;frame<16;frame++)for(const facing of [-1,1]){

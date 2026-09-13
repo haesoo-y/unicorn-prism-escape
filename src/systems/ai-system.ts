@@ -18,11 +18,12 @@ export class AISystem {
       state.audioEvents |= 8;
       playerCooldown.value = 2;
     }
+    const boost=[0,6,15,24,33,45,57,69,84,99][state.stage] ?? 0, shotSpeed=250+boost;
     for (const [entity, enemy] of world.enemies) {
       const position = world.positions.get(entity), velocity = world.velocities.get(entity), cooldown = world.cooldowns.get(entity);
       if (!position || !velocity || !cooldown) continue;
       const dx = playerPosition.x - position.x, dy = playerPosition.y - position.y, distance = Math.hypot(dx, dy) || 1;
-      let speed = ([220, 210, 200][enemy.type] ?? 210) + ([0,6,15,24,33,45,57,69,84,99][state.stage] ?? 0);
+      let speed = ([220, 210, 200][enemy.type] ?? 210) + boost;
       if (state.abilities & 1 << 8 && distance < 200) speed -= 50;
       const rush = distance < 120 || enemy.type !== 1 && (state.elapsed + entity * (enemy.type === 0 ? .37 : .61)) % (enemy.type === 0 ? 2.6 : 4.2) < (enemy.type === 0 ? .85 : 1.4);
       const orbit=rush?0:enemy.type===0?18+entity%3*24:enemy.type===1?70+entity%3*18:24+entity%2*38,angle=entity*2.4+state.elapsed*(enemy.type===0 ? .8 : enemy.type===1 ? -.45 : .22),chaseX=playerPosition.x+Math.cos(angle)*orbit-position.x,chaseY=playerPosition.y+Math.sin(angle)*orbit-position.y,chaseDistance=Math.hypot(chaseX,chaseY)||1,nx=chaseX/chaseDistance,ny=chaseY/chaseDistance,curve=rush?0:enemy.type===0?Math.sin(state.elapsed*3+entity*1.7)*.2:enemy.type===1?(entity%2 ? .22 : -.22):Math.sin(state.elapsed*.9+entity*2)*.12;
@@ -32,7 +33,7 @@ export class AISystem {
       if(enemy.type===2){const turn=Math.min(1,delta*(rush?5:2.5));velocity.x+=(vx-velocity.x)*turn;velocity.y+=(vy-velocity.y)*turn}else{velocity.x=vx;velocity.y=vy}
       cooldown.value -= delta;
       if (enemy.type === 1 && distance < 260 && cooldown.value <= 0) {
-        spawnProjectile(world, position.x, position.y, dx / distance * 300, dy / distance * 300, false);
+        spawnProjectile(world, position.x, position.y, dx / distance * shotSpeed, dy / distance * shotSpeed, false);
         state.audioEvents |= 1;
         cooldown.value = 2;
       }
@@ -44,7 +45,7 @@ export class AISystem {
         const position = world.positions.get(entity), velocity = world.velocities.get(entity);
         if (position && velocity) {
           const distance = Math.hypot(position.x - playerPosition.x, position.y - playerPosition.y);
-          const length = Math.hypot(velocity.x, velocity.y) || 1, speed = distance < 200 ? 250 : 300;
+          const length = Math.hypot(velocity.x, velocity.y) || 1, speed = shotSpeed - (distance < 200 ? 50 : 0);
           velocity.x = velocity.x / length * speed; velocity.y = velocity.y / length * speed;
         }
       }
