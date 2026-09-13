@@ -7,6 +7,7 @@ import {RulesSystem} from '../src/systems/rules-system';
 import {RenderSystem} from '../src/systems/render-system';
 import {InputState} from '../src/input';
 import {AudioSystem} from '../src/systems/audio-system';
+const spawnIntervals=[10,10,5,5,5,4,4,4,3,3];
 const none={colors:0,playerHit:false,enemyHit:false,gateEntered:false};
 const oldRandom=Math.random;
 (globalThis as any).Image=class {complete=true;src=''};
@@ -21,9 +22,9 @@ for(let pass=1;pass<=2;pass++){
  for(let stage=0;stage<10;stage++)for(let seed=1;seed<=32;seed++){
   let r=seed;Math.random=()=>((r=(Math.imul(r,1664525)+1013904223)>>>0)/4294967296);
   const w=new World(),s=createGameState(7),rules=new RulesSystem();s.stage=stage;spawnPlayer(w);const player=[...w.players][0]!;w.positions.set(player,{x:48,y:160+seed*45});
-  s.stageElapsed=4.999;rules.update(w,s,none);assert.equal(w.enemies.size,0);
+  s.stageElapsed=spawnIntervals[stage]!-.001;rules.update(w,s,none);assert.equal(w.enemies.size,0);
   let expected=0;const kinds=stage<3?1:stage<6?2:3;
-  for(const time of [5,10,15]){s.stageElapsed=time;const before=new Set(w.enemies.keys());rules.update(w,s,none);expected++;assert.equal(w.enemies.size,expected);const edges=new Set<number>(),types=new Set<number>();for(const [e,enemy]of w.enemies){if(before.has(e))continue;const p=w.positions.get(e)!;assert(p.x>=48&&p.x<=3152&&p.y>=48&&p.y<=2152);const edge=p.y===48?0:p.x===3152?1:p.y===2152?2:p.x===48?3:-1;assert(edge>=0);assert(!edges.has(edge));edges.add(edge);types.add(enemy.type);const q=w.positions.get(player)!;assert(Math.hypot(p.x-q.x,p.y-q.y)>=160)}assert.equal(types.size,1);assert([...types].every(t=>t>=0&&t<kinds));rules.update(w,s,none);assert.equal(w.enemies.size,expected)}
+  for(const time of [1,2,3].map(n=>n*spawnIntervals[stage]!)){s.stageElapsed=time;const before=new Set(w.enemies.keys());rules.update(w,s,none);expected++;assert.equal(w.enemies.size,expected);const edges=new Set<number>(),types=new Set<number>();for(const [e,enemy]of w.enemies){if(before.has(e))continue;const p=w.positions.get(e)!;assert(p.x>=48&&p.x<=3152&&p.y>=48&&p.y<=2152);const edge=p.y===48?0:p.x===3152?1:p.y===2152?2:p.x===48?3:-1;assert(edge>=0);assert(!edges.has(edge));edges.add(edge);types.add(enemy.type);const q=w.positions.get(player)!;assert(Math.hypot(p.x-q.x,p.y-q.y)>=160)}assert.equal(types.size,1);assert([...types].every(t=>t>=0&&t<kinds));rules.update(w,s,none);assert.equal(w.enemies.size,expected)}
   for(const phase of ['upgrade','failed','complete','title'] as const){s.phase=phase;s.stageElapsed=32;rules.update(w,s,none);assert.equal(w.enemies.size,expected)}
   spawnChecks++;
  }
@@ -31,10 +32,10 @@ for(let pass=1;pass<=2;pass++){
  for(let stage=0;stage<10;stage++)for(let type=0;type<3;type++)for(const slowed of [false,true]){
   const w=new World(),s=createGameState(7),ai=new AISystem();s.stage=stage;s.abilities=slowed?1<<8:0;spawnPlayer(w);spawnEnemy(w,slowed?1750:2200,1100,type);const e=[...w.enemies.keys()][0]!;
   for(let f=0;f<180;f++)ai.update(w,s,.05);
-  const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([230,220,210][type]!+stage*5)*(slowed?.65:1))<.001);speedChecks++;
+  const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([230,220,210][type]!+stage*7)*(slowed?.65:1))<.001);speedChecks++;
  }
  for(let stage=0;stage<10;stage++){
-  const g:any=new Game();g.gameState.stage=stage;g.startStage();g.lastTime=1000;g.gameState.stageElapsed=4.99;g.gameState.elapsed=42;g.gameState.invulnerable=100;const initial=g.world.enemies.size;g.frame(1020);assert.equal(g.world.enemies.size,initial+1);
+  const g:any=new Game();g.gameState.stage=stage;g.startStage();g.lastTime=1000;g.gameState.stageElapsed=spawnIntervals[stage]!-.01;g.gameState.elapsed=42;g.gameState.invulnerable=100;const initial=g.world.enemies.size;g.frame(1020);assert.equal(g.world.enemies.size,initial+1);
   const elapsed=g.gameState.elapsed;g.gameState.phase='upgrade';for(let t=1040;t<7040;t+=20)g.frame(t);assert.equal(g.gameState.elapsed,elapsed);assert.equal(g.world.enemies.size,initial+1);
   g.startStage();assert.equal(g.gameState.stageElapsed,0);assert.equal(g.gameState.reinforcementWave,0);assert.equal(g.world.enemies.size,initial);assert.equal(g.gameState.elapsed,elapsed);assert.equal(g.world.entities.size,9+initial);
   if(stage<9){g.nextStage();assert.equal(g.gameState.reinforcementWave,0);assert.equal(g.gameState.elapsed,elapsed)}g.reset();assert.equal(g.gameState.elapsed,0);assert.equal(g.gameState.reinforcementWave,0);
@@ -43,12 +44,12 @@ for(let pass=1;pass<=2;pass++){
  for(let stage=0;stage<10;stage++){
   const w=new World(),s=createGameState(7),rules=new RulesSystem(),cap=[4,7,9,15,17,19,24,27,30,35][stage]!,kinds=Math.min(3,1+Math.floor(stage/3));s.stage=stage;spawnPlayer(w);
   for(let i=0;i<cap;i++)spawnEnemy(w,300+i*20,300,0);
-  for(const t of [5,10,15]){s.stageElapsed=t;rules.update(w,s,none);assert.equal(w.enemies.size,cap);assert.equal(s.reinforcementWave,t/5)}
+  for(const t of [1,2,3].map(n=>n*spawnIntervals[stage]!)){s.stageElapsed=t;rules.update(w,s,none);assert.equal(w.enemies.size,cap);assert.equal(s.reinforcementWave,t/spawnIntervals[stage]!)}
   for(let turn=0;turn<kinds*2;turn++){
-   Math.random=()=>(turn%kinds+.5)/kinds;const dead=[...w.enemies.keys()][0]!;w.consumed.add(dead);const before=new Set(w.enemies.keys());s.stageElapsed=20+turn*5;rules.update(w,s,none);const added=[...w.enemies.keys()].filter(e=>!before.has(e));assert.equal(added.length,1);assert.equal(w.enemies.get(added[0]!)!.type,turn%kinds);assert.equal(w.enemies.size-1,cap);w.destroyEntity(dead);rules.update(w,s,none);assert.equal(w.enemies.size,cap);
+   Math.random=()=>(turn%kinds+.5)/kinds;const dead=[...w.enemies.keys()][0]!;w.consumed.add(dead);const before=new Set(w.enemies.keys());s.stageElapsed=(4+turn)*spawnIntervals[stage]!;rules.update(w,s,none);const added=[...w.enemies.keys()].filter(e=>!before.has(e));assert.equal(added.length,1);assert.equal(w.enemies.get(added[0]!)!.type,turn%kinds);assert.equal(w.enemies.size-1,cap);w.destroyEntity(dead);rules.update(w,s,none);assert.equal(w.enemies.size,cap);
   }
  }
- for(const stage of [0,3,6])for(const random of [0,.5,.999]){Math.random=()=>random;const w=new World(),s=createGameState(7),rules=new RulesSystem();s.stage=stage;spawnPlayer(w);for(const time of [5,10]){s.stageElapsed=time;rules.update(w,s,none)}assert.equal(w.enemies.size,2);assert([...w.enemies.values()].every(e=>e.type===Math.floor(random*(1+stage/3))))}
+ for(const stage of [0,3,6])for(const random of [0,.5,.999]){Math.random=()=>random;const w=new World(),s=createGameState(7),rules=new RulesSystem();s.stage=stage;spawnPlayer(w);for(const time of [1,2].map(n=>n*spawnIntervals[stage]!)){s.stageElapsed=time;rules.update(w,s,none)}assert.equal(w.enemies.size,2);assert([...w.enemies.values()].every(e=>e.type===Math.floor(random*(1+stage/3))))}
  Math.random=oldRandom;
  for(const boosted of [false,true])for(const [x,y]of [[1,0],[0,1],[1,1]]){
   const g:any=new Game();g.gameState.phase='play';g.gameState.abilities=boosted?64:0;g.input.moveX=x;g.input.moveY=y;g.inputSystem.update(g.world,g.gameState);const v=g.world.velocities.get([...g.world.players][0]);assert(Math.abs(Math.hypot(v.x,v.y)-(boosted?300:260))<.001);

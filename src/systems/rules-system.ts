@@ -13,8 +13,9 @@ export class RulesSystem {
       state.pointerArmed = -1;
       for (let index = 0; index < ABILITIES.length; index++) if (!(state.abilities&1<<index)&&(index%3===0||state.abilities&1<<index-1)) {state.selectedAbility=index;break}
     } else if (collision.playerHit && state.phase === 'play') state.phase = 'failed';
-    if(state.phase==='play'&&Math.floor(state.stageElapsed/5)>state.reinforcementWave){
-      state.reinforcementWave=Math.floor(state.stageElapsed/5);
+    const interval=state.stage<2?10:state.stage<5?5:state.stage<8?4:3;
+    if(state.phase==='play'&&Math.floor(state.stageElapsed/interval)>state.reinforcementWave){
+      state.reinforcementWave=Math.floor(state.stageElapsed/interval);
       const player=world.players.values().next().value,p=player===undefined?undefined:world.positions.get(player);
       const kinds=Math.min(3,1+Math.floor(state.stage/3)),limit=[4,7,9,15,17,19,24,27,30,35][state.stage]??4;
       let living=0;for(const enemy of world.enemies.keys())if(!world.consumed.has(enemy))living++;
