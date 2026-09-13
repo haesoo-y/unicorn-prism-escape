@@ -200,3 +200,8 @@
 - 원본/출력 56×56, 8방향 유지. 다리 분할 43px·측면 꼬리 제외 10px·좌우 분할 26/28px, 정수 이동 procedural animation 유지. 충돌 반경은 변경하지 않는다.
 - ZIP 13,236→13,263B(+27), 여유 49B. check/debug/zip/size 각 2회, production-regression/package-check 내부 2회 성공. 실제 RenderSystem/native Canvas 8방향×3포즈를 2회 렌더링·시각 확인. Node VM 600프레임 검사도 2회 통과.
 - Chrome 새로고침에서 ERR_BLOCKED_BY_CLIENT 재발. 수정본 실제 Chrome 확인은 미완료이며 사용자에게 권한 재확인을 요청했다.
+
+## 배경 곡선·그라데이션 — 2026-09-13
+
+- 4시간대 하늘은 월드 높이에 맞춘 4색 연속 그라데이션. 구름은 2색 타원 겹침으로 다시 그려 기존보다 약 1.5배 넓게 표현, 투명도 45%. 해는 지름 60px 원, 밤은 지름 44px 보름달. 별·이동 속도·팔레트·게임 판정은 유지.
+- ZIP 13,263→13,281B(+18), 여유 31B. check/debug/zip/size 각 2회와 production-regression/package-check/production-smoke 내부 2회 성공. 실제 RenderSystem/native Canvas 4팔레트 렌더 2회 시각 확인. Chrome은 클라이언트 차단으로 미완료.

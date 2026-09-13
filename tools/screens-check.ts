@@ -11,7 +11,7 @@ const none={colors:0,playerHit:false,enemyHit:false,gateEntered:false};
 const oldRandom=Math.random;
 (globalThis as any).Image=class {complete=true;src=''};
 (globalThis as any).addEventListener=()=>{};
-const context:any=new Proxy({canvas:null as any},{get(t,k){if(k in t)return t[k as keyof typeof t];return ()=>{}},set(t,k,v){(t as any)[k]=v;return true}});
+const context:any=new Proxy({canvas:null as any,createLinearGradient:()=>({addColorStop(){}})},{get(t,k){if(k in t)return t[k as keyof typeof t];return ()=>{}},set(t,k,v){(t as any)[k]=v;return true}});
 const pointerEvents:Record<string,(event:any)=>void>={};
 class Canvas{width=960;height=720;clientWidth=960;clientHeight=720;getContext(){return context}addEventListener(name:string,fn:(event:any)=>void){pointerEvents[name]=fn}setPointerCapture(){}}
 const canvas=new Canvas();context.canvas=canvas;
