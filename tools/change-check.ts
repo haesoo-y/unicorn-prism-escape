@@ -32,7 +32,7 @@ for(let pass=1;pass<=2;pass++){
  for(let stage=0;stage<10;stage++)for(let type=0;type<3;type++)for(const slowed of [false,true]){
   const w=new World(),s=createGameState(7),ai=new AISystem();s.stage=stage;s.abilities=slowed?1<<8:0;spawnPlayer(w);spawnEnemy(w,slowed?1750:2200,1100,type);const e=[...w.enemies.keys()][0]!;
   for(let f=0;f<180;f++)ai.update(w,s,.05);
-  const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([230,220,210][type]!+stage*7)*(slowed?.7:1))<.001);speedChecks++;
+  const v=w.velocities.get(e)!;assert(Math.abs(Math.hypot(v.x,v.y)-([230,220,210][type]!+stage*8)*(slowed?.7:1))<.001);speedChecks++;
  }
  for(let stage=0;stage<10;stage++){
   const g:any=new Game();g.gameState.stage=stage;g.startStage();g.lastTime=1000;g.gameState.stageElapsed=spawnIntervals[stage]!-.01;g.gameState.elapsed=42;g.gameState.invulnerable=100;const initial=g.world.enemies.size;g.frame(1020);assert.equal(g.world.enemies.size,initial+1);
