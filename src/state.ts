@@ -12,7 +12,7 @@ export const ABILITIES = [
   ['RAINBOW WAVE', 'Prisms: 300px push + shot clear'],
   ['SPEED UP', 'Move faster'],
   ['PRISM MAGNET', 'Pull in nearby prisms'],
-  ['SLOW AURA', 'Enemy speed 65%; shots 35%'],
+  ['SLOW AURA', 'Enemies and shots: 70% speed'],
 ] as const;
 export const RAINBOW_COLORS = ['#ff4057', '#ff8b2b', '#ffd23f', '#45d66b', '#3a9cff', '#5552c9', '#ad5cff'] as const;
 
