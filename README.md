@@ -1,6 +1,6 @@
 # Unicorn Prism Escape
 
-<img src="artwork/cover.png" alt="Unicorn Prism Escape" width="640" height="640">
+<img src="artwork/cover.png" alt="Unicorn Prism Escape" width="480" height="480">
 
 A colorful survival game set high above the clouds. Guide a rainbow-maned unicorn past pursuing demons, collect all seven prism colors in each stage, and escape through the rainbow gate.
 
