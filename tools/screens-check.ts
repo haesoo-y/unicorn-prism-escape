@@ -19,6 +19,19 @@ Object.assign(globalThis,{HTMLCanvasElement:Canvas,document:{querySelector:()=>c
 const {Game}=await import('../src/game');
 
 for(let pass=1;pass<=2;pass++){
+ for(const [width,height] of [[320,568],[960,720],[1440,900],[844,390]]){
+  const gradients:number[][]=[],stops:any[][]=[],fills:number[][]=[],ellipses:number[][]=[];
+  const sky:any=new Proxy({createLinearGradient(...args:number[]){gradients.push(args);return {addColorStop(...stop:any[]){stops.push(stop)}}},fillRect(...args:number[]){fills.push(args)},ellipse(...args:number[]){ellipses.push(args)}},{get(t,k){return k in t?t[k as keyof typeof t]:()=>{}},set(t,k,v){(t as any)[k]=v;return true}});
+  const r:any=new RenderSystem(sky,new InputState());r.screenWidth=width;r.screenHeight=height;r.pixelText=()=>{};r.drawGate=()=>{};r.drawUnicorn=()=>{};r.drawTitle(0);
+  assert.deepEqual(gradients,[[0,0,0,height]]);assert.deepEqual(fills,[[0,0,width,height]]);assert.equal(stops.length,4);assert.deepEqual(stops.map(s=>s[0]),[0,1/3,2/3,1]);assert.equal(ellipses.length,6*(width!<1000?1:2));assert(ellipses.some(e=>e[2]===216));if(width!>=1000)assert(ellipses.some(e=>e[2]===162));assert(ellipses.every(e=>e[2]>=72&&e[3]>=54));
+  gradients.length=0;ellipses.length=0;r.drawArena(0,0);assert.deepEqual(gradients,[[0,0,0,2200]]);assert.equal(ellipses.length,72);
+  for(const time of [0,60000,300000,900000]){
+   ellipses.length=0;r.drawArena(0,time);
+   const boxes=Array.from({length:12},(_,i)=>{const shapes=ellipses.slice(i*6,i*6+6);return [Math.min(...shapes.map(e=>e[0]!-e[2]!)),Math.max(...shapes.map(e=>e[0]!+e[2]!)),Math.min(...shapes.map(e=>e[1]!-e[3]!)),Math.max(...shapes.map(e=>e[1]!+e[3]!))]});
+   for(let i=0;i<12;i++)for(let j=i+1;j<12;j++){const a=boxes[i]!,b=boxes[j]!;assert(a[1]!<=b[0]!||b[1]!<=a[0]!||a[3]!<=b[2]!||b[3]!<=a[2]!)}
+  }
+ }
+
  for(let stage=0;stage<10;stage++){
   const gateGame:any=new Game();gateGame.gameState.stage=stage;gateGame.startStage();assert.equal(gateGame.world.gates.size,1);const gate=[...gateGame.world.gates][0],location={...gateGame.world.positions.get(gate)};assert(location.x>=90&&location.x<=3110&&location.y>=90&&location.y<=2110);if(!stage)assert.deepEqual(location,{x:1600,y:1100});
   for(let count=0;count<7;count++){gateGame.gameState.collected=count;new RulesSystem().update(gateGame.world,gateGame.gameState,{...none,gateEntered:true});assert.equal(gateGame.gameState.phase,'play');assert.equal(gateGame.world.gates.size,1);assert.deepEqual(gateGame.world.positions.get(gate),location)}
