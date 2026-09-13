@@ -56,10 +56,11 @@ export class RenderSystem {
   private drawUnicorn(x:number,y:number,fx:number,fy:number,blink:boolean,alpha=1,moving=false):void{
     const sector=(Math.round(Math.atan2(fy,fx)/(Math.PI/4))+8)%8,map=[1,3,2,3,1,4,0,4],cell=map[sector]??1,flip=sector===3||sector===4||sector===7?-1:1,step=moving?Math.round(Math.sin(this.stride)*2):0,c=this.context;
     c.save();c.translate(Math.round(x),Math.round(y));c.scale(flip,1);c.globalAlpha=alpha*(blink&&Math.floor(performance.now()/80)%2?.35:1);
-    if(this.unicorn.complete){const sx=cell*56,cut=cell>2?45:43,left=cell===1?8:0,split=[28,26,28,21,25][cell]!;
+    if(this.unicorn.complete){const sx=cell*56,cut=cell>2?45:43,left=cell===1?8:0,split=[21,26,28,21,25][cell]!;
       if(!moving)c.drawImage(this.unicorn,sx,0,56,56,-28,-28,56,56);
-      else{if(left)c.drawImage(this.unicorn,sx,cut,left,56-cut,-28,cut-28,left,56-cut);
-        for(let i=0;i<2;i++){const start=i?split:left,width=(i?56:split)-start,k=i?-step:step;c.drawImage(this.unicorn,sx+start,cut,width,56-cut,start-28+(cell>2?0:k),cut-28-Math.max(0,k),width,56-cut)}
+      else{const part=(start:number,width:number,k=0)=>c.drawImage(this.unicorn,sx+start,cut,width,56-cut,start-28+(cell===1||cell===2?k:0),cut-28-Math.max(0,k),width,56-cut);
+        if(left)part(0,left);if(!cell)part(21,11);
+        for(let i=0;i<2;i++){const start=i?split+(cell?0:11):left;part(start,(i?56:split)-start,i?-step:step)}
         c.drawImage(this.unicorn,sx,0,56,cut,-28,-28,56,cut);
       }
     }c.restore();
