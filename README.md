@@ -1,5 +1,11 @@
 # Unicorn Prism Escape
 
+**A js13kGames 2026 entry — a complete game in just 13,309 bytes.**
+
+**[Play on js13kGames](https://js13kgames.com/2026/games/unicorn-prism-escape)**
+
+Submitted ZIP: **13,309 / 13,312 bytes**.
+
 <img src="artwork/submission/cover-800x500.png" alt="Unicorn Prism Escape" width="800" height="500">
 
 A colorful survival game set high above the clouds. Guide a rainbow-maned unicorn past pursuing demons, collect all seven prism colors in each stage, and escape through the rainbow gate.
