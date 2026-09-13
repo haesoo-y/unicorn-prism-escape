@@ -18,3 +18,5 @@ Run `npm run check`, `npm run debug`, `npm run zip`, and `npm run size`. The ZIP
 - `node tools/playthrough-simulation.mjs`: advisory bot with normal gameplay rules, three seeds twice; failure is a finding, not a browser test failure.
 
 These tools do not replace browser, real touch, audio listening, or human difficulty checks. See `QA-2026-09-12.md` for completed checks and remaining limitations. Rebuild the review dashboard with `node tools/build-dashboard.mjs`; it is excluded from the game ZIP.
+
+The target duration for a full 10-stage run is approximately 5 minutes (300 seconds), excluding skill selection. This is a design target, not a verified human completion time.

@@ -58,6 +58,15 @@ for(let pass=1;pass<=2;pass++){
   const calls:any[][]=[],rotations:number[]=[];const c:any={imageSmoothingEnabled:false,save(){},restore(){},translate(...n:number[]){assert(n.every(Number.isInteger))},scale(x:number,y:number){assert(Math.abs(x)===1&&y===1)},rotate(a:number){rotations.push(a)},drawImage(...a:any[]){calls.push(a)}};
   const r:any=new RenderSystem(c,new InputState());r.stride=phase*Math.PI/2;r.drawUnicorn(1600,1100,Math.cos(direction*Math.PI/4),Math.sin(direction*Math.PI/4),false,1,true);assert.equal(rotations.length,0);assert(calls.length>=3);for(const a of calls){assert.equal(a[3],a[7]);assert.equal(a[4],a[8]);assert(a.slice(1).every(Number.isInteger))}r.drawUnicorn(1600,1100,1,0,false,1,false);assert.deepEqual(calls.at(-1)!.slice(3),[56,56,-28,-28,56,56]);renderChecks++;
  }
+ // Diagonal feet must stay inside one moving piece and never slide sideways at the hip.
+ for(const direction of [1,3,5,7])for(let phase=0;phase<16;phase++){
+  const calls:any[][]=[],c:any={save(){},restore(){},translate(){},scale(){},drawImage(...a:any[]){calls.push(a)}};
+  const r:any=new RenderSystem(c,new InputState());r.stride=phase*Math.PI/8;r.drawUnicorn(0,0,Math.cos(direction*Math.PI/4),Math.sin(direction*Math.PI/4),false,1,true);
+  const cell=direction<4?3:4,legs=calls.filter(a=>a[2]>0),foot=cell===3?[23,30]:[18,23];
+  assert(legs.some(a=>a[1]<=cell*56+foot[0]!&&a[1]+a[3]>cell*56+foot[1]!), 'a diagonal foot must not be split between opposing phases');
+  for(const a of legs){assert.equal(a[5],a[1]-cell*56-28,'no lateral gap at diagonal leg seam');assert(a[6]<=a[2]-28,'leg remains attached by overlapping the body')}
+  assert.equal(calls.reduce((area,a)=>area+a[3]*a[4],0),56*56,'every source pixel drawn once');
+ }
  const auraContext:any={beginPath(){},arc(){},fill(){},stroke(){}};const auraRenderer:any=new RenderSystem(auraContext,new InputState());auraRenderer.drawAura(0,0,0);assert.equal(auraContext.strokeStyle,'#75fff022');assert.equal(auraContext.fillStyle,'#64ffe808');
  const sw=new World(),ss=createGameState(7);spawnPlayer(sw);ss.abilities=1<<8;spawnProjectile(sw,1700,1100,300,0,false);const se=[...sw.projectiles.keys()][0]!;new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,105);sw.positions.set(se,{x:2000,y:1100});new AISystem().update(sw,ss,0);assert.equal(sw.velocities.get(se)!.x,300);
  // The 200px aura boundary applies to enemies and hostile projectiles.
