@@ -23,25 +23,6 @@ Choose an upgrade between stages. Each row unlocks in order:
 - **Attack:** Rainbow Horn strikes ahead; Rainbow Bolt automatically fires lightning in four directions; Rainbow Wave pushes enemies away and clears nearby enemy shots when you collect a prism.
 - **Ability:** Speed Up helps you move faster; Prism Magnet pulls nearby prisms toward you; Slow Aura slows nearby enemies and their shots.
 
-## Run locally
+## Development
 
-```sh
-npm install
-npm run dev
-```
-
-Open http://localhost:8080.
-
-## Build the submission ZIP
-
-From the repository root, run:
-
-```sh
-npm install
-npm run zip
-npm run size
-```
-
-`npm run zip` checks TypeScript, builds the production game, and creates `build/game.zip`. `npm run size` verifies the 13,312-byte limit.
-
-Submit `build/game.zip`. It contains a self-contained `index.html` directly at the archive root, as required by the [js13kGames rules](https://js13kgames.com/2026/rules). The generated HTML lives at `build/index.html` in this repository; the rule applies to the ZIP layout, not the source repository layout.
+See [Development](DEVELOPMENT.md) for local setup and submission ZIP instructions.
