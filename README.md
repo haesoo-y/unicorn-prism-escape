@@ -1,5 +1,7 @@
 # Unicorn Prism Escape
 
+[🇺🇸 English](README.md) | [🇰🇷 한국어](documents/ko/README.md) | [🇯🇵 日本語](documents/ja/README.md) | [🇨🇳 简体中文](documents/zh/README.md)
+
 **A js13kGames 2026 entry — a complete game in just 13,309 bytes.**
 
 **[Play on js13kGames](https://js13kgames.com/2026/games/unicorn-prism-escape)**
@@ -27,3 +29,8 @@ Choose an upgrade between stages. Each row unlocks in order:
 - **Map:** Gate Map shows your position and the gate; Prism Map adds remaining prisms; Enemy Sense adds enemies.
 - **Attack:** Rainbow Horn strikes ahead; Rainbow Bolt automatically fires lightning in four directions; Rainbow Wave pushes enemies away and clears nearby enemy shots when you collect a prism.
 - **Ability:** Speed Up helps you move faster; Prism Magnet pulls nearby prisms toward you; Slow Aura slows nearby enemies and their shots.
+
+## Documentation
+
+- [Architecture](ARCHITECTURE.md) — How the ECS structure and game loop work.
+- [Techniques](TECHNIQUES.md) — How assets, animation, audio, enemy pursuit, and levels fit in 13KB.
