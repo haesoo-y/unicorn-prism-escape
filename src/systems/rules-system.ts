@@ -13,14 +13,14 @@ export class RulesSystem {
       state.pointerArmed = -1;
       for (let index = 0; index < ABILITIES.length; index++) if (!(state.abilities&1<<index)&&(index%3===0||state.abilities&1<<index-1)) {state.selectedAbility=index;break}
     } else if (collision.playerHit && state.phase === 'play') state.phase = 'failed';
-    if(state.phase==='play'&&Math.floor(state.stageElapsed/8)>state.reinforcementWave){
-      state.reinforcementWave=Math.floor(state.stageElapsed/8);
-      const edges=[0,1,2,3],player=world.players.values().next().value,p=player===undefined?undefined:world.positions.get(player);
+    if(state.phase==='play'&&Math.floor(state.stageElapsed/5)>state.reinforcementWave){
+      state.reinforcementWave=Math.floor(state.stageElapsed/5);
+      const player=world.players.values().next().value,p=player===undefined?undefined:world.positions.get(player);
       const kinds=Math.min(3,1+Math.floor(state.stage/3)),limit=[4,7,9,15,17,19,24,27,30,35][state.stage]??4;
       let living=0;for(const enemy of world.enemies.keys())if(!world.consumed.has(enemy))living++;
-      for(let i=0;i<kinds&&living<limit;i++,living++){
-        const type=state.reinforcementType++%kinds;
-        const edge=edges.splice(Math.floor(Math.random()*edges.length),1)[0]??0,horizontal=edge%2===0,length=horizontal?WORLD_WIDTH:WORLD_HEIGHT;
+      if(living<limit){
+        const type=Math.floor(Math.random()*kinds);
+        const edge=Math.floor(Math.random()*4),horizontal=edge%2===0,length=horizontal?WORLD_WIDTH:WORLD_HEIGHT;
         let along=160+Math.random()*(length-320),x=horizontal?along:edge===1?WORLD_WIDTH-48:48,y=horizontal?(edge===0?48:WORLD_HEIGHT-48):along;
         if(p&&Math.hypot(x-p.x,y-p.y)<160){along=along<length/2?length-160:160;if(horizontal)x=along;else y=along}
         spawnEnemy(world,x,y,type);

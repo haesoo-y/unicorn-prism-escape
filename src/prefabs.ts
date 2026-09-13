@@ -28,7 +28,7 @@ export function spawnEnemy(world: World, x: number, y: number, type: number): vo
   world.positions.set(entity, {x, y});
   world.velocities.set(entity, {x: 0, y: 0});
   world.radii.set(entity, {value: type === 2 ? 23 : 10});
-  world.enemies.set(entity, {type, health: type === 2 ? 6 : 1});
+  world.enemies.set(entity, {type, health: type === 2 ? 3 : 1});
   world.cooldowns.set(entity, {value: 1});
 }
 

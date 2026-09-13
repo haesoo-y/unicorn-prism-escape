@@ -17,7 +17,7 @@ export class InputSystem {
         let x = Number(this.down('ArrowRight', 'KeyD')) - Number(this.down('ArrowLeft', 'KeyA'));
         let y = Number(this.down('ArrowDown', 'KeyS')) - Number(this.down('ArrowUp', 'KeyW'));
         if (x === 0 && y === 0) {x = this.input.moveX; y = this.input.moveY}
-        const length = Math.hypot(x, y) || 1, speed = state.abilities & 1 << 6 ? 288 : 240;
+        const length = Math.hypot(x, y) || 1, speed = state.abilities & 1 << 6 ? 300 : 260;
         velocity.x = x / length * speed; velocity.y = y / length * speed;
         if (x || y) {facing.x = x / length; facing.y = y / length}
         if ((this.input.take('Space') || this.input.pointerAttack) && state.abilities & 1 << 3) state.attackRequested = true;

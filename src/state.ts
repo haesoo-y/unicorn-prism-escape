@@ -10,7 +10,7 @@ export const ABILITIES = [
   ['RAINBOW HORN', 'SPACE: wide charge'],
   ['RAINBOW BOLT', '4-way bolts every 2s'],
   ['RAINBOW WAVE', 'Prisms: 300px push + shot clear'],
-  ['SPEED UP', 'Move speed +20%'],
+  ['SPEED UP', 'Move speed 260 > 300'],
   ['PRISM MAGNET', 'Pull in nearby prisms'],
   ['SLOW AURA', 'Enemy speed 65%; shots 35%'],
 ] as const;
@@ -34,7 +34,6 @@ export interface GameState {
   stageTimes: number[];
   stageElapsed: number;
   reinforcementWave: number;
-  reinforcementType: number;
   restartRequested: boolean;
   audioEvents: number;
 }
@@ -44,6 +43,6 @@ export function createGameState(total: number): GameState {
     phase: 'play', collected: 0, total, stage: 0, rainbowMask: 0,
     selectedAbility: 0, pointerArmed: -1, abilities: 0,
     attackRequested: false, meleeFlash: 0, invulnerable: 0,
-    elapsed: 0, stageTimes: [], stageElapsed: 0, reinforcementWave: 0, reinforcementType: 0, restartRequested: false, audioEvents: 0,
+    elapsed: 0, stageTimes: [], stageElapsed: 0, reinforcementWave: 0, restartRequested: false, audioEvents: 0,
   };
 }
