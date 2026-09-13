@@ -22,7 +22,3 @@ Choose an upgrade between stages. Each row unlocks in order:
 - **Map:** Gate Map shows your position and the gate; Prism Map adds remaining prisms; Enemy Sense adds enemies.
 - **Attack:** Rainbow Horn strikes ahead; Rainbow Bolt automatically fires lightning in four directions; Rainbow Wave pushes enemies away and clears nearby enemy shots when you collect a prism.
 - **Ability:** Speed Up helps you move faster; Prism Magnet pulls nearby prisms toward you; Slow Aura slows nearby enemies and their shots.
-
-## Development
-
-See [Development](DEVELOPMENT.md) for local setup and submission ZIP instructions.
