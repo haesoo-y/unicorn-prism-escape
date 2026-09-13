@@ -10,7 +10,7 @@ export const ABILITIES = [
   ['RAINBOW HORN', 'SPACE: wide charge'],
   ['RAINBOW BOLT', '4-way bolts every 2s'],
   ['RAINBOW WAVE', 'Prisms: 300px push + shot clear'],
-  ['SPEED UP', 'Move speed 260 > 300'],
+  ['SPEED UP', 'Move faster'],
   ['PRISM MAGNET', 'Pull in nearby prisms'],
   ['SLOW AURA', 'Enemy speed 65%; shots 35%'],
 ] as const;
