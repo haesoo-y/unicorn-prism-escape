@@ -39,6 +39,15 @@ for(let pass=1;pass<=2;pass++){
  }
  assert(Math.abs(g.gameState.stageTimes.reduce((a:number,b:number)=>a+b,0)-g.gameState.elapsed)<1e-8);
  g.reset();assert.equal(g.gameState.elapsed,0);assert.deepEqual(g.gameState.stageTimes,[]);
+ // R is accepted only on the two screens that offer restart.
+ for(const phase of ['title','start','play','upgrade','advance','failed','complete']){
+  const retry:any=new Game();retry.gameState.phase=phase;retry.input.pressed.add('KeyR');retry.inputSystem.update(retry.world,retry.gameState);assert.equal(Boolean(retry.gameState.restartRequested),phase==='failed'||phase==='complete',phase);
+ }
+ for(const phase of ['failed','complete']){
+  const retry:any=new Game();retry.gameState.stage=3;retry.gameState.elapsed=42;retry.gameState.abilities=64;retry.gameState.phase=phase;retry.input.pressed.add('KeyR');retry.frame(16);
+  assert.equal(retry.gameState.phase,phase==='failed'?'play':'title');assert.equal(retry.gameState.stage,phase==='failed'?3:0);assert.equal(retry.gameState.elapsed,phase==='failed'?42:0);assert.equal(retry.gameState.abilities,phase==='failed'?64:0);
+ }
+ const heldR:any=new Game();heldR.gameState.phase='play';heldR.input.keyDown({code:'KeyR',repeat:false});heldR.frame(16);assert.equal(heldR.gameState.phase,'play');heldR.gameState.phase='failed';heldR.input.keyDown({code:'KeyR',repeat:true});heldR.frame(32);assert.equal(heldR.gameState.phase,'failed','holding R before failure must not restart');heldR.input.keyUp({code:'KeyR'});heldR.input.keyDown({code:'KeyR',repeat:false});heldR.frame(48);assert.equal(heldR.gameState.phase,'play');
  for(const pointerType of ['touch','mouse']){
   const retry:any=new Game();retry.startStage();retry.gameState.stage=3;retry.gameState.elapsed=42;retry.gameState.stageTimes=[10,12,15];retry.gameState.abilities=1<<6;retry.gameState.phase='failed';
   pointerEvents.pointerdown!({pointerType,pointerId:1,clientX:100,clientY:100});assert.equal(retry.gameState.restartRequested,true);retry.frame(16);assert.equal(retry.gameState.phase,'play');assert.equal(retry.gameState.stage,3);assert.equal(retry.gameState.elapsed,42);assert.deepEqual(retry.gameState.stageTimes,[10,12,15]);assert.equal(retry.gameState.abilities,1<<6);assert.equal(retry.gameState.restartRequested,false);
