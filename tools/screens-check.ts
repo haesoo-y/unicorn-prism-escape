@@ -19,12 +19,19 @@ Object.assign(globalThis,{HTMLCanvasElement:Canvas,document:{querySelector:()=>c
 const {Game}=await import('../src/game');
 
 for(let pass=1;pass<=2;pass++){
+ for(let stage=0;stage<10;stage++){
+  const gateGame:any=new Game();gateGame.gameState.stage=stage;gateGame.startStage();assert.equal(gateGame.world.gates.size,1);const gate=[...gateGame.world.gates][0],location={...gateGame.world.positions.get(gate)};assert(location.x>=90&&location.x<=3110&&location.y>=90&&location.y<=2110);if(!stage)assert.deepEqual(location,{x:1600,y:1100});
+  for(let count=0;count<7;count++){gateGame.gameState.collected=count;new RulesSystem().update(gateGame.world,gateGame.gameState,{...none,gateEntered:true});assert.equal(gateGame.gameState.phase,'play');assert.equal(gateGame.world.gates.size,1);assert.deepEqual(gateGame.world.positions.get(gate),location)}
+  new RulesSystem().update(gateGame.world,gateGame.gameState,{...none,colors:64,gateEntered:true});assert.equal(gateGame.gameState.collected,7);assert.equal(gateGame.gameState.phase,stage===9?'complete':'upgrade');
+  gateGame.startStage();assert.equal(gateGame.world.gates.size,1);assert.equal(gateGame.gameState.collected,0);new RulesSystem().update(gateGame.world,gateGame.gameState,{...none,gateEntered:true,playerHit:true});assert.equal(gateGame.gameState.phase,'failed');
+ }
+ const filters:string[]=[];let gateFilter='none';const gateContext:any={save(){},restore(){gateFilter='none'},translate(){},drawImage(){filters.push(gateFilter)},fillRect(){},set filter(v:string){gateFilter=v}};const gateRenderer:any=new RenderSystem(gateContext,new InputState());gateRenderer.drawGate(0,0,0,false);gateRenderer.drawGate(0,0,0,true);assert.deepEqual(filters,['grayscale(1)','none']);assert.equal(gateFilter,'none');
  const g:any=new Game(),rules=new RulesSystem();g.startStage();let total=0;
  for(let stage=0;stage<10;stage++){
   assert.equal(g.gameState.stage,stage);const duration=16.4+stage*.317;
   // A failed attempt contributes to the existing cumulative timer.
   g.gameState.elapsed=total+3;g.gameState.stageElapsed=3;g.gameState.phase='failed';g.startStage();assert.equal(g.gameState.elapsed,total+3);assert.equal(g.gameState.stageElapsed,0);
-  total+=duration;g.gameState.elapsed=total;rules.update(g.world,g.gameState,{...none,gateEntered:true});
+  total+=duration;g.gameState.elapsed=total;g.gameState.collected=7;rules.update(g.world,g.gameState,{...none,gateEntered:true});
   assert(Math.abs(g.gameState.stageTimes[stage]-duration)<1e-8);assert.equal(g.gameState.phase,stage===9?'complete':'upgrade');
   const times=[...g.gameState.stageTimes];rules.update(g.world,g.gameState,{...none,gateEntered:true});assert.deepEqual(g.gameState.stageTimes,times);
   g.lastTime=1000;g.frame(1020);g.frame(2020);assert.equal(g.gameState.elapsed,total);

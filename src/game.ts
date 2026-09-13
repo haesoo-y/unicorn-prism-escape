@@ -1,7 +1,7 @@
 import {World} from './ecs/world';
 import {canvas, context} from './globals';
 import {InputState} from './input';
-import {spawnEnemy, spawnPlayer, spawnPrism} from './prefabs';
+import {spawnEnemy, spawnPlayer, spawnPrism, spawnGate} from './prefabs';
 import {createGameState, WORLD_HEIGHT, WORLD_WIDTH, type GameState} from './state';
 import {AISystem} from './systems/ai-system';
 import {AudioSystem} from './systems/audio-system';
@@ -113,5 +113,9 @@ export class Game {
     positions.forEach(([x,y], color) => spawnPrism(this.world,x,y,color));
     const counts = ENEMIES[this.gameState.stage] ?? ENEMIES[0]; let index = 0;
     counts.forEach((count,type) => {for (let i=0;i<count;i++,index++) {const angle=index*2.4+this.gameState.stage, radius=620+(index%3)*170; spawnEnemy(this.world,Math.max(60,Math.min(WORLD_WIDTH-60,WORLD_WIDTH/2+Math.cos(angle)*radius)),Math.max(60,Math.min(WORLD_HEIGHT-60,WORLD_HEIGHT/2+Math.sin(angle)*radius)),type)}});
+      const player=this.world.players.values().next().value,p=player===undefined?undefined:this.world.positions.get(player);let x=WORLD_WIDTH/2,y=WORLD_HEIGHT/2;
+      if(this.gameState.stage&&p){x=p.x<WORLD_WIDTH/2?WORLD_WIDTH-90:90;y=p.y<WORLD_HEIGHT/2?WORLD_HEIGHT-90:90;for(let tries=0;tries<20;tries++){const gx=90+Math.random()*(WORLD_WIDTH-180),gy=90+Math.random()*(WORLD_HEIGHT-180);if(Math.hypot(gx-p.x,gy-p.y)>600&&[...this.world.enemies.keys()].every(e=>{const q=this.world.positions.get(e);return !q||Math.hypot(q.x-gx,q.y-gy)>140})){x=gx;y=gy;break}}}
+      spawnGate(this.world,x,y);
+
   }
 }
