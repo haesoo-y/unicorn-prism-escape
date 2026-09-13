@@ -34,10 +34,11 @@ export class AudioSystem {
     const event = state.audioEvents;
     if (event & 1) {this.tone(190,.14,.16,'sawtooth',now,85); this.tone(380,.08,.08,'square',now,170)}
     if (event & 2) {this.tone(95,.24,.22,'sawtooth',now,42); this.tone(55,.3,.18,'triangle',now,32)}
-    if (event & 4) {this.tone(520,.18,.17,'sawtooth',now,110); this.tone(760,.12,.1,'triangle',now,250)}
-    if (event & 8) {this.tone(620,.12,.13,'square',now,330); this.tone(930,.09,.08,'sine',now,520)}
+    if (event & 4) {this.tone(1200,.12,.12,'sawtooth',now,80); this.tone(150,.16,.2,'triangle',now+.04,40)}
+    if (event & 8) for(let i=0;i<3;i++) this.tone(1800+i*400,.035,.1,'sawtooth',now+i*.035,180);
     if (event & 16) for (let i=0;i<3;i++) this.tone([440,554,659][i]??440,.18,.13,'sine',now+i*.06);
-    if (event & 32) for (let i=0;i<3;i++) this.tone([660,880,1100][i]??660,.14,.1,'sine',now+i*.045);
+    if (event & 32 && state.abilities & 32) this.tone(660,.5,.13,'sine',now,55);
+    if (event & 32) for (let i=0;i<3;i++) this.tone(660+i*220,.14,.1,'sine',now+i*.045);
     if (event & 64) this.tone(330,.07,.08,'triangle',now,440);
   }
 
@@ -61,7 +62,7 @@ export class AudioSystem {
     const audio = this.audio, master = this.master; if (!audio || !master) return;
     if (DEBUG && globalThis.__audioState) globalThis.__audioState.notes++;
     const oscillator = audio.createOscillator(), gain = audio.createGain(); oscillator.type = type;
-    oscillator.frequency.setValueAtTime(frequency, at); if (end !== frequency) oscillator.frequency.exponentialRampToValueAtTime(end, at + duration);
+    oscillator.frequency.setValueAtTime(frequency, at); oscillator.frequency.exponentialRampToValueAtTime(end, at + duration);
     gain.gain.setValueAtTime(.0001, at); gain.gain.exponentialRampToValueAtTime(volume, at + .01); gain.gain.exponentialRampToValueAtTime(.0001, at + duration);
     oscillator.onended=()=>{oscillator.disconnect();gain.disconnect()};
     oscillator.connect(gain).connect(master); oscillator.start(at); oscillator.stop(at + duration + .02);
