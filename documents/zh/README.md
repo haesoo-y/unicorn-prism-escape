@@ -14,6 +14,12 @@
 
 完成全部10个关卡即可获胜。总时间会跨关卡和重试累计，但在选择升级时暂停。
 
+## 游戏截图
+
+<img src="../../artwork/screenshots/stage-05.png" alt="第5关：在云端躲避恶魔" width="800">
+
+<img src="../../artwork/screenshots/stage-10.png" alt="第10关：在夜空中面对恶魔" width="800">
+
 ## 操作方式
 
 - **移动：** WASD或方向键。触屏设备上，按住左下角摇杆并拖动。

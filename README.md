@@ -13,6 +13,12 @@ A colorful survival game set high above the clouds. Guide a rainbow-maned unicor
 
 Clear all 10 stages to win. Your total time carries across stages and retries, but pauses while you choose upgrades.
 
+## Screenshots
+
+<img src="artwork/screenshots/stage-05.png" alt="Stage 5: escaping demons above the clouds" width="800">
+
+<img src="artwork/screenshots/stage-10.png" alt="Stage 10: facing demons in the night sky" width="800">
+
 ## Controls
 
 - **Move:** WASD or arrow keys. On touchscreens, hold and drag the joystick in the bottom-left corner.
