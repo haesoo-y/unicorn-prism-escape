@@ -14,12 +14,6 @@
 
 10개 스테이지를 모두 클리어하면 승리합니다. 총시간은 스테이지와 재도전 사이에 누적되지만, 강화를 선택하는 동안에는 멈춥니다.
 
-## 스크린샷
-
-<img src="../../artwork/screenshots/stage-05.png" alt="스테이지 5: 구름 위에서 악마들을 피해 이동" width="800">
-
-<img src="../../artwork/screenshots/stage-10.png" alt="스테이지 10: 밤하늘에서 악마들과 대치" width="800">
-
 ## 조작법
 
 - **이동:** WASD 또는 방향키. 터치 화면에서는 왼쪽 아래 조이스틱을 누른 채 드래그하세요.
@@ -41,3 +35,10 @@
 
 - [아키텍처](ARCHITECTURE.md) — ECS 구조와 게임 실행 흐름을 설명합니다.
 - [테크닉](TECHNIQUES.md) — 에셋·애니메이션·소리·적 추적·레벨을 13KB에 담는 방법을 설명합니다.
+
+## 스크린샷
+
+<p>
+<img src="../../artwork/screenshots/stage-05.png" alt="스테이지 5: 구름 위에서 악마들을 피해 이동" width="49%">
+<img src="../../artwork/screenshots/stage-10.png" alt="스테이지 10: 밤하늘에서 악마들과 대치" width="49%">
+</p>

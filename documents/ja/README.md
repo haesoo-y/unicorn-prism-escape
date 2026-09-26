@@ -14,12 +14,6 @@
 
 全10ステージをクリアすると勝利です。合計時間はステージやリトライをまたいで加算されますが、強化を選んでいる間は停止します。
 
-## スクリーンショット
-
-<img src="../../artwork/screenshots/stage-05.png" alt="ステージ5：雲の上で悪魔から逃げる" width="800">
-
-<img src="../../artwork/screenshots/stage-10.png" alt="ステージ10：夜空で悪魔と対峙する" width="800">
-
 ## 操作方法
 
 - **移動：** WASDまたは矢印キー。タッチ画面では左下のジョイスティックを押したままドラッグします。
@@ -41,3 +35,10 @@
 
 - [アーキテクチャ](ARCHITECTURE.md) — ECS構造とゲームループの仕組みを説明します。
 - [テクニック](TECHNIQUES.md) — 素材、アニメーション、音声、敵の追跡、レベルを13KBに収める方法を説明します。
+
+## スクリーンショット
+
+<p>
+<img src="../../artwork/screenshots/stage-05.png" alt="ステージ5：雲の上で悪魔から逃げる" width="49%">
+<img src="../../artwork/screenshots/stage-10.png" alt="ステージ10：夜空で悪魔と対峙する" width="49%">
+</p>
